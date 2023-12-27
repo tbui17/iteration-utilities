@@ -1,0 +1,28 @@
+{
+  "name": "@tbui17/iteration-utilities",
+  "license": "MIT",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup index.ts --format cjs,esm --dts",
+    "release": "pnpm run build && changeset publish",
+    "lint": "tsc"
+  },
+  "devDependencies": {
+    "@changesets/cli": "latest",
+    "@types/lodash": "^4.14.202",
+    "ts-toolbelt": "^9.6.0",
+    "tsup": "latest",
+    "type-fest": "^4.8.3",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "dependencies": {
+    "@tbui17/type-utils": "^1.0.0",
+    "js-sdsl": "^4.4.2",
+    "lodash": "^4.17.21",
+    "zod": "^3.22.4"
+  }
+}
