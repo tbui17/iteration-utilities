@@ -101,6 +101,26 @@ describe("treeBFS basic", () => {
 			}
 		})
 	})
+
+	it("should retrieve ancestors", () => {
+		treeBFS(tree, (ctx) => {
+			if (ctx.value === 4) {
+				expect(ctx.ancestors).toStrictEqual([
+					tree,
+					tree.left,
+					tree.left.left,
+				])
+			}
+		})
+	})
+
+	it("should retrieve children", () => {
+		treeBFS(tree, (ctx) => {
+			if (ctx.key === "value" && ctx.value === 1) {
+				expect(ctx.children).toStrictEqual([tree.left, tree.right])
+			}
+		})
+	})
 })
 
 describe("parent retrieval", () => {
@@ -225,14 +245,16 @@ describe("tree mutations", () => {
 		expect(tree).toStrictEqual(expected)
 	})
 
-	it("should change the key of a node in a Record context", () => {
+	it("should not traverse into a node which was replaced", () => {
+		const node = {
+			value: 2,
+			left: { value: 4, left: null, right: null },
+			right: { value: 5, left: null, right: null },
+		} as const
+
 		const tree = {
 			value: 1,
-			left: {
-				value: 2,
-				left: { value: 4, left: null, right: null },
-				right: { value: 5, left: null, right: null },
-			},
+			left: node,
 			right: {
 				value: 3,
 				left: { value: 6, left: null, right: null },
@@ -244,76 +266,10 @@ describe("tree mutations", () => {
 		const expected = {
 			value: 1,
 			left: {
-				value: 2,
-				left: { value: 4, left: null, right: null },
-				right: { value: 5, left: null, right: null },
-			},
-			right: {
-				value: 3,
-				left: { value: 6, left: null, right: null },
-				right: { value: 7, left: null, right: null },
-				NEW_KEY: "UNIQUE_VALUE", // <-- changed key
-			},
-		}
-
-		treeBFS(tree, (ctx) => {
-			if (ctx.key === "UNIQUE_KEY") {
-				ctx.setKey("NEW_KEY")
-			}
-		})
-
-		expect(tree).toStrictEqual(expected)
-	})
-
-	it("should change the key of a node in a Record context while maintaining references to value objects", () => {
-		const objectValue = { a: 1 }
-		const tree = {
-			value: 1,
-			left: {
-				value: 2,
-				left: { value: 4, left: null, right: null },
-				right: { value: 5, left: null, right: null },
-			},
-			right: {
-				value: 3,
-				left: { value: 6, left: null, right: null },
-				right: { value: 7, left: null, right: null },
-				UNIQUE_KEY: objectValue,
-			},
-		}
-
-		const expected = {
-			value: 1,
-			left: {
-				value: 2,
-				left: { value: 4, left: null, right: null },
-				right: { value: 5, left: null, right: null },
-			},
-			right: {
-				value: 3,
-				left: { value: 6, left: null, right: null },
-				right: { value: 7, left: null, right: null },
-				NEW_KEY: objectValue,
-			},
-		}
-
-		treeBFS(tree, (ctx) => {
-			if (ctx.key === "UNIQUE_KEY") {
-				ctx.setKey("NEW_KEY")
-			}
-		})
-		const cast = tree as unknown as typeof expected
-
-		expect(cast.right.NEW_KEY).toBe(expected.right.NEW_KEY)
-	})
-
-	it("should disallow setting a key for an array context", () => {
-		const tree = {
-			value: 1,
-			left: {
-				value: 2,
-				left: { value: 4, left: null, right: null },
-				right: { value: 5, left: null, right: null },
+				// changed
+				value: "CHANGED",
+				left: { prop1: "abc" },
+				right: "def",
 			},
 			right: {
 				value: 3,
@@ -321,35 +277,25 @@ describe("tree mutations", () => {
 				right: { value: 7, left: null, right: null },
 				UNIQUE_KEY: "UNIQUE_VALUE",
 			},
-			arrCtx: ["arrVal1", "arrVal2", "arrVal3"],
 		}
-		// no changes
-		const expected = {
-			value: 1,
-			left: {
-				value: 2,
-				left: { value: 4, left: null, right: null },
-				right: { value: 5, left: null, right: null },
-			},
-			right: {
-				value: 3,
-				left: { value: 6, left: null, right: null },
-				right: { value: 7, left: null, right: null },
-				UNIQUE_KEY: "UNIQUE_VALUE",
-			},
-			arrCtx: ["arrVal1", "arrVal2", "arrVal3"],
-		}
-		let traversed = false
 
 		treeBFS(tree, (ctx) => {
-			if (ctx.value === "arrVal2") {
-				const status = ctx.setKey("newKey")
-				traversed = true
-				expect(isSuccessfulTreeUpdateStatus(status)).toBe(false)
+			expect(ctx.context).not.toBe(node)
+			expect(ctx.value).not.toBe(node.value)
+			expect(ctx.value).not.toBe(node.left.value)
+			expect(ctx.value).not.toBe(node.right.value)
+			if (
+				ctx.isRecord() &&
+				ctx.key === "left" &&
+				ctx.value === tree.left
+			) {
+				ctx.value = {
+					value: "CHANGED",
+					left: { prop1: "abc" },
+					right: "def",
+				}
 			}
 		})
-
-		expect(traversed).toBe(true)
 		expect(tree).toStrictEqual(expected)
 	})
 })
