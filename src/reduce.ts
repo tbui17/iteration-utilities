@@ -24,7 +24,6 @@ export const reduceToMultiObject = <
 		if (res !== undefined) {
 			const [key, value] = res
 			const arr = map[key as keyof typeof map] ?? []
-
 			arr.push(value)
 			map[key as keyof typeof map] = arr
 		}
@@ -34,6 +33,8 @@ export const reduceToMultiObject = <
 
 /**
  * Reduces an array to an object using a mapping function.
+ * 
+ * Return a tuple of [key, value] in the mapping function to add or replace a property to the resulting object.
  *
  * @template T - The type of elements in the array.
  * @template TReturn - The type of the value returned by the mapping function.

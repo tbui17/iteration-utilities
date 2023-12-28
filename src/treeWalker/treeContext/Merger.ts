@@ -6,6 +6,7 @@ export class Merger {
 	) {}
 
 	public merge() {
+		
 		const target = this.target
 		const source = this.source
 		const isTargetArray = Array.isArray(target)
@@ -15,14 +16,17 @@ export class Merger {
 
 		if (isTargetArray && isSourceArray) {
 			this.mergeArray(target, source)
+			return
 		}
 
 		if (isTargetArray && !isSourceArray) {
 			this.mergeObjectIntoArray(target, source)
+			return
 		}
 
 		if (!isTargetArray && isSourceArray) {
 			this.mergeArrayIntoObject(target, source)
+			return
 		}
 
 		this.mergeObjects(target, source)
@@ -60,11 +64,13 @@ export class Merger {
 		target: Record<string, any>,
 		source: Record<string, any>
 	) {
+		
+		
 		Object.assign(target, source)
 	}
 
 	private mergeObjectIntoArray(target: any[], source: Record<string, any>) {
-		target.push(...Object.entries(source))
+		target.push(source)
 	}
 
 	private mergeArrayIntoObject(target: Record<string, any>, source: any[]) {

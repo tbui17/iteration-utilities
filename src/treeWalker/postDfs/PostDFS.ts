@@ -2,12 +2,11 @@ import {
 	type ObjectOrArray,
 	isObjectOrArray,
 	getEntriesOfObjectOrArray,
-	type TreeContext,
 } from ".."
 import { type ObjectTraversalContext } from "../treeContext/objectTraversalContext"
 
 import { type TraversalContextWithDepth, type Visitor } from "../types"
-import { BaseProcessor, MutatingContextProcessor } from "."
+import { MutatingContextProcessor } from "."
 
 function loadDFSStack(data: ObjectOrArray) {
 	const retrievalStack: TraversalContextWithDepth[] = [
@@ -58,19 +57,4 @@ export function postDFSObjectTraversal<T>(
 	}
 
 	new MutatingContextProcessor(data, loadDFSStack(data), visitor).run()
-}
-
-/**
- * Performs a post-order depth-first search (DFS) traversal on a tree-like data structure.
- *
- * @template T - The type of the data in the tree.
- * @param data - The tree-like data structure to traverse.
- * @param visitor - The visitor object that defines the behavior during traversal.
- */
-export function treePostDFS<T>(data: T, visitor: Visitor<TreeContext>) {
-	if (!isObjectOrArray(data)) {
-		return
-	}
-
-	new BaseProcessor(data, loadDFSStack(data), visitor).run()
 }

@@ -4,6 +4,8 @@ export interface BaseTreeContext {
 	get rootContext(): object
 	get context(): object
 	get parent(): {} | undefined
+	get children(): {}[]
+	get ancestors(): {}[]
 	break(): void
 	isArray(): boolean
 	isRecord(): boolean

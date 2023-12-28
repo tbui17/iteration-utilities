@@ -33,6 +33,24 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		this._rootContext = rootContext
 	}
 
+	get children() {
+		return Object.values(this._context).filter(isObjectOrArray)
+	}
+
+	get ancestors(): (Record<string, any> | any[])[] {
+		return this.path.reduce(
+			(acc, curr) => {
+				acc.result.push(acc.context)
+				acc.context = get(acc.context, curr)
+				return acc
+			},
+			{
+				context: this.rootContext,
+				result: [] as (typeof this.rootContext)[],
+			}
+		).result
+	}
+
 	public break() {
 		this.breakEmitter()
 	}
@@ -49,17 +67,7 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		if (!isObjectOrArray(newContext)) {
 			return treeUpdateStatus.NOT_CONTEXT_OR_ARRAY
 		}
-		if (this.isAtRoot()) {
-			// handle mutation of root context if possible
-			Merger.merge(this.rootContext, newContext, removeExisting)
-			return removeExisting
-				? treeUpdateStatus.CONTEXT_REPLACED
-				: treeUpdateStatus.CONTEXT_MERGED
-		}
-		if (removeExisting) {
-			return this.replace(newContext)
-		}
-		Merger.merge(this.context, newContext, false)
+		Merger.merge(this.context, newContext, removeExisting)
 		return treeUpdateStatus.CONTEXT_MERGED
 	}
 
@@ -72,7 +80,7 @@ export class ObjectTraversalContext implements BaseTreeContext {
 			: get(this.rootContext, this.path.slice(0, -1))
 	}
 
-	public replace(value: any) {
+	public replace(value: {} | null) {
 		const parent = this.parent
 		if (!parent) {
 			return treeUpdateStatus.ALREADY_AT_ROOT_OR_EMPTY_PATH

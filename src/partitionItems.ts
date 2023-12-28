@@ -3,11 +3,35 @@ import { type z } from "zod"
 import partial from "lodash/partial"
 
 /**
- * If two patterns are valid, they are prioritized by their key order in the object.
+ * Partitions a collection of items into groups based on a set of Zod schemas.
+ * Items are tested against each schema and grouped accordingly. Items that don't match any schema are classified as orphans.
+ * 
+ * Note that zod schemas strip away extra properties by default unless z.passthrough() is used.
  *
- * @param items
- * @param patterns
- * @returns
+ * @template TPattern - A record type where each key corresponds to a Zod schema.
+ * @template TItem - The type of items in the input array.
+ * 
+ * @param {TItem[]} items - The array of items to be partitioned.
+ * @param {TPattern} patterns - An object where each key is associated with a Zod schema. These schemas are used to classify items.
+ * @param {Object} [options={}] - Optional configuration options.
+ * @param {boolean} [options.prioritizeByKeyOrderOnConflict=false] - Determines the behavior when an item matches multiple schemas.
+ * If false, the item is added to all matching groups. If true, the item is added to the first matching group based on key order.
+ * 
+ * @returns {ReturnType<TPattern, TItem>} An object with two properties: 'result' and 'orphans'.
+ * The 'result' property is an object mirroring the structure of 'patterns', but with each schema's key associated with an array of items that matched that schema.
+ * The 'orphans' property is an array of items that did not match any schema.
+ *
+ * @example
+ * // Example usage
+ * const items = [{ type: 'fruit', name: 'apple' }, { type: 'vegetable', name: 'carrot' }];
+ * const patterns = {
+ *   fruit: z.object({ type: z.literal('fruit') }),
+ *   vegetable: z.object({ type: z.literal('vegetable') })
+ * };
+ * const partitioned = partitionItems(items, patterns);
+ * console.log(partitioned.result.fruit); // [{ type: 'fruit', name: 'apple' }]
+ * console.log(partitioned.result.vegetable); // [{ type: 'vegetable', name: 'carrot' }]
+ * console.log(partitioned.orphans); // []
  */
 
 export function partitionItems<
@@ -21,7 +45,7 @@ export function partitionItems<
 	}: {
 		prioritizeByKeyOrderOnConflict?: boolean
 	} = {}
-) {
+): ReturnType<TPattern, TItem> {
 	const collection = mapValues(patterns, (schema) => {
 		return {
 			schema,
@@ -33,7 +57,7 @@ export function partitionItems<
 	const orphans: TItem[] = []
 
 	const match = partial(
-		prioritizeByKeyOrderOnConflict ? matchAll : attemptPushMatch,
+		prioritizeByKeyOrderOnConflict ? attemptPushMatch : matchAll,
 		values
 	)
 

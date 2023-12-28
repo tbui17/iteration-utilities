@@ -14,6 +14,8 @@ class BFS {
 
 	private shouldBreak = false
 
+	private didChange = false
+
 	constructor(private data: ObjectOrArray, private visitor: TreeVisitor) {
 		if (!isObjectOrArray(data)) {
 			return
@@ -41,12 +43,18 @@ class BFS {
 						depth,
 						this.breakEmitter,
 						pathClone,
-						this.data
+						this.data,
+						this.changeEmitter
 					)
 				)
 
 				if (this.shouldBreak) {
 					return this
+				}
+
+				if (this.didChange) {
+					this.didChange = false
+					continue
 				}
 
 				if (isObjectOrArray(value)) {
@@ -63,6 +71,10 @@ class BFS {
 
 	private breakEmitter = () => {
 		this.shouldBreak = true
+	}
+
+	private changeEmitter = () => {
+		this.didChange = true
 	}
 }
 

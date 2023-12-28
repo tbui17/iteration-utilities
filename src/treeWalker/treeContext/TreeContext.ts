@@ -1,5 +1,5 @@
 import get from "lodash/get"
-import { type Visitor } from ".."
+import { isObjectOrArray, type Visitor } from ".."
 import { treeUpdateStatus } from "./treeUpdateStatus"
 import { BaseTreeContext } from "./baseTreeContext"
 
@@ -57,6 +57,7 @@ export class TreeContext implements BaseTreeContext {
 	 */
 	public readonly path: Readonly<(string | number)[]>
 	private _rootContext: Record<string | number, any>
+	private changeEmitter: () => void
 
 	constructor(
 		key: string | number,
@@ -65,7 +66,8 @@ export class TreeContext implements BaseTreeContext {
 		depth: number,
 		breakEmitter: () => void,
 		path: (string | number)[],
-		rootContext: Record<string | number, any>
+		rootContext: Record<string | number, any>,
+		changeEmitter: () => void
 	) {
 		this._key = key
 		this._value = value
@@ -74,10 +76,23 @@ export class TreeContext implements BaseTreeContext {
 		this.breakEmitter = breakEmitter
 		this.path = path
 		this._rootContext = rootContext
+		this.changeEmitter = changeEmitter
+	}
+
+	/**
+	 * Returns an array of child objects or arrays in the tree context.
+	 *
+	 * @returns {Array<object | Array<any>>} The child objects or arrays.
+	 */
+	get children() {
+		return Object.values(this._context).filter(isObjectOrArray)
 	}
 
 	/**
 	 * Gets the value of the current context node.
+	 *
+	 * May cause unexpected behavior in traversal if mutated.
+	 *
 	 * @returns The value of the node.
 	 */
 	public get value() {
@@ -86,10 +101,14 @@ export class TreeContext implements BaseTreeContext {
 
 	/**
 	 * Sets the value of the current context node.
+	 *
+	 * If the original value or the new value is an object, neither will be traversed through after setting a value.
+	 *
 	 * @param value - The new value to be set.
 	 */
 	public set value(value) {
 		this._context[this.key] = value
+		this.changeEmitter()
 	}
 
 	/**
@@ -98,24 +117,6 @@ export class TreeContext implements BaseTreeContext {
 	 */
 	public get key() {
 		return this._key
-	}
-
-	/**
-	 * Sets the key of the current context node.
-	 * @param key - The new key to be set.
-	 * @returns The status of the key update operation.
-	 */
-	public setKey(key: string | number) {
-		if (this.isArray()) {
-			return treeUpdateStatus.CANNOT_SET_KEY_FOR_ARRAY
-		}
-		if (key === this._key) {
-			return treeUpdateStatus.SET_KEY_SUCCESSFUL
-		}
-		this._context[key] = this._value
-		delete this._context[this._key]
-		this._key = key
-		return treeUpdateStatus.SET_KEY_SUCCESSFUL
 	}
 
 	/**
@@ -145,6 +146,26 @@ export class TreeContext implements BaseTreeContext {
 	}
 
 	/**
+	 * Returns an array of ancestors of the current context.
+	 * An ancestor is a parent or a grandparent of the current context.
+	 * Each ancestor is represented as a record or an array.
+	 * @returns {Array<Record<string, any> | any[]>} The array of ancestors.
+	 */
+	get ancestors(): (Record<string, any> | any[])[] {
+		return this.path.reduce(
+			(acc, curr) => {
+				acc.result.push(acc.context)
+				acc.context = acc.context[curr]
+				return acc
+			},
+			{
+				context: this.rootContext,
+				result: [] as (typeof this.rootContext)[],
+			}
+		).result
+	}
+
+	/**
 	 * Signals to break out of the tree traversal.
 	 */
 	public break() {
@@ -169,6 +190,9 @@ export class TreeContext implements BaseTreeContext {
 
 	/**
 	 * Gets the current context.
+	 *
+	 * Mutating the context's structure may cause unexpected behavior.
+	 *
 	 * @returns The current context, either as a record or an array.
 	 */
 	public get context(): Record<string, any> | any[] {
