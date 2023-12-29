@@ -1,5 +1,5 @@
 import get from "lodash/get"
-import { isObjectOrArray, type Visitor } from ".."
+import { isObjectOrArray, numberSchema, PathError, type Visitor } from ".."
 import { treeUpdateStatus } from "./treeUpdateStatus"
 import { BaseTreeContext } from "./baseTreeContext"
 
@@ -155,11 +155,22 @@ export class TreeContext implements BaseTreeContext {
 		return this.path.reduce(
 			(acc, curr) => {
 				acc.result.push(acc.context)
-				acc.context = acc.context[curr]
+				const { context } = acc
+				if (Array.isArray(context)) {
+					const res = numberSchema.safeParse(curr)
+					if (!res.success) {
+						throw new PathError(curr, this.path, {
+							cause: res.error,
+						})
+					}
+					acc.context = context[res.data]
+				} else {
+					acc.context = context[curr]
+				}
 				return acc
 			},
 			{
-				context: this.rootContext,
+				context: this._rootContext,
 				result: [] as (typeof this.rootContext)[],
 			}
 		).result

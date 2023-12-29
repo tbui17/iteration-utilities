@@ -1,3 +1,4 @@
+import { z } from "zod"
 import { type ObjectOrArray } from "./types"
 
 export function isObjectOrArray(value: any): value is ObjectOrArray {
@@ -11,3 +12,5 @@ export function getEntriesOfObjectOrArray(value: ObjectOrArray) {
 export function getValuesOfObjectOrArray(value: ObjectOrArray) {
 	return Array.isArray(value) ? value : Object.values(value)
 }
+
+export const numberSchema = z.coerce.number()
