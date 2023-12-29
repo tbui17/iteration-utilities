@@ -1,4 +1,3 @@
-import isPlainObject from "lodash/isPlainObject"
 import { type z } from "zod"
 import { postDFSObjectTraversal } from "."
 
@@ -7,6 +6,7 @@ import {
 	type ReplaceDeepObject,
 	type ReplaceDeepWithinObject,
 } from "@tbui17/type-utils"
+import { cloneDeep } from "lodash"
 
 /**
  * Modifies an object by spreading additional properties returned by a callback function
@@ -185,30 +185,35 @@ export function spreadByPattern<
 	fn,
 	value,
 	pattern,
+	shouldClone = true,
 }: {
 	value: TValue
 	pattern: TPattern
 	fn: (ctx: Record<string, any> & z.infer<TPattern>) => TReturn
+	shouldClone?: boolean
 }): SpreadDeepObject<TValue, z.infer<TPattern>, TReturn> {
-	postDFSObjectTraversal(value, (ctx) => {
-		const { context } = ctx
-		if (!ctx.isRecord() || !isPlainObject(context)) {
+	const obj = shouldClone ? cloneDeep(value) : value
+
+	postDFSObjectTraversal(obj, (ctx) => {
+		if (!ctx.isRecord() || notMatchable(ctx.context)) {
 			return
 		}
 
-		if (!pattern.safeParse(context).success) {
+		if (!pattern.safeParse(ctx.context).success) {
 			return
 		}
 
-		Object.assign(context, fn(context))
+		Object.assign(ctx.context, fn(ctx.context))
 	})
 	//@ts-expect-error experimental
-	return value
+	return obj
 }
 
 /**
  * Modifies an object by replacing each nested object that matches a specified
  * Zod pattern with a new object returned by a callback function.
+ *
+ * Ignores the root object or array.
  *
  * @example
  * 	// Example usage
@@ -234,7 +239,7 @@ export function spreadByPattern<
  *   - A callback function that is called for each matching sub-object and returns a
  *       new object to replace it.
  *
- * @returns {ReplaceDeepObject<TValue, z.infer<TPattern>, TReturn>} - The
+ * @returns {TValue extends Array<infer U> ? U extends Record<string, any> ? ReplaceDeepObject<U, z.infer<TPattern>, TReturn>: never: ReplaceDeepWithinObject<TValue, z.infer<TPattern>, TReturn>} - The
  *   modified object with each matching sub-object replaced by the new object
  *   returned by the callback function.
  */
@@ -246,27 +251,35 @@ export function replaceByPattern<
 	fn,
 	value,
 	pattern,
+	shouldClone = true,
 }: {
 	value: TValue
 	pattern: TPattern
 	fn: (ctx: Record<string, any> & z.infer<TPattern>) => TReturn
-}): ReplaceDeepObject<TValue, z.infer<TPattern>, TReturn> {
-	postDFSObjectTraversal(value, (ctx) => {
-		if (!ctx.isRecord() || !isPlainObject(ctx.context)) {
+	shouldClone?: boolean
+}): TValue extends Array<infer U>
+	? U extends Record<string, any>
+		? ReplaceDeepObject<U, z.infer<TPattern>, TReturn>
+		: never
+	: ReplaceDeepWithinObject<TValue, z.infer<TPattern>, TReturn> {
+	const obj = shouldClone ? cloneDeep(value) : value
+
+	postDFSObjectTraversal(obj, (ctx) => {
+		if (!ctx.isRecord() || notMatchable(ctx.context)) {
 			return
 		}
 
-		const { context } = ctx
-
-		if (!pattern.safeParse(context).success) {
+		if (!pattern.safeParse(ctx.context).success) {
 			return
 		}
 
-		ctx.replace(fn(context))
+		const newContext = fn(ctx.context)
+
+		ctx.replace(newContext)
 	})
 
 	//@ts-expect-error experimental
-	return value
+	return obj
 }
 
 /**
@@ -314,6 +327,7 @@ export function replaceValuesWithinObject<
 	fn,
 	value,
 	pattern,
+	shouldClone,
 }: {
 	value: TValue
 	pattern: TPattern
@@ -322,24 +336,41 @@ export function replaceValuesWithinObject<
 		context: z.infer<TPattern>
 		key: string
 	}) => TReturn
+	shouldClone?: boolean
 }): ReplaceDeepWithinObject<TValue, z.infer<TPattern>, TReturn> {
-	postDFSObjectTraversal(value, (ctx) => {
-		if (!ctx.isRecord() || !isPlainObject(ctx.context)) {
+	const obj = shouldClone ? cloneDeep(value) : value
+
+	postDFSObjectTraversal(obj, (ctx) => {
+		if (!ctx.isRecord() || notMatchable(ctx.context)) {
 			return
 		}
 
-		const { context } = ctx
-
-		for (const k in context) {
-			const value = context[k]
+		for (const k in ctx.context) {
+			const value = ctx.context[k]
 			const res = pattern.safeParse(value)
 			if (!res.success) {
 				continue
 			}
-			context[k] = fn({ parent: context, context: value, key: k })
+			ctx.context[k] = fn({ parent: ctx.context, context: value, key: k })
 		}
 	})
 
 	//@ts-expect-error experimental
-	return value
+	return obj
+}
+
+const notMatchableItems = new Set([
+	Date,
+	RegExp,
+	Error,
+	Buffer,
+	Set,
+	Map,
+	Function,
+])
+
+function notMatchable(value: any) {
+	return (
+		notMatchableItems.has(value.constructor) || typeof value === "function"
+	)
 }
