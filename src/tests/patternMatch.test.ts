@@ -418,6 +418,11 @@ describe("replace", () => {
 			value: deploymentConfigs,
 			pattern: featuresSchema,
 			fn(ctx) {
+				type ExpectedCtx = Record<string, any> & {
+					enableDebug: boolean
+					loggingLevel: string
+				}
+				expectTypeOf(ctx).toEqualTypeOf<ExpectedCtx>()
 				return {
 					replaced: 100,
 					replaced2: ctx.loggingLevel,
