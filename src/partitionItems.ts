@@ -107,3 +107,4 @@ const matchAll: MatchStrategy = (values, item) => {
 	}
 	return didMatch
 }
+
