@@ -4,14 +4,13 @@ import {
 	isObjectOrArray,
 	type Visitor,
 	BaseTreeContext,
+	numberSchema,
+	PathError,
 } from ".."
 import { Merger } from "./Merger"
 import { treeUpdateStatus } from "./treeUpdateStatus"
 import { type TreeContextConstructor } from "./treeContextConstructor"
 
-/**
- * Represents a context for mutating a tree structure.
- */
 export class ObjectTraversalContext implements BaseTreeContext {
 	private _context: Record<string, any> | any[]
 	public readonly depth: number
@@ -41,11 +40,22 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		return this.path.reduce(
 			(acc, curr) => {
 				acc.result.push(acc.context)
-				acc.context = get(acc.context, curr)
+				const { context } = acc
+				if (Array.isArray(context)) {
+					const res = numberSchema.safeParse(curr)
+					if (!res.success) {
+						throw new PathError(curr, this.path, {
+							cause: res.error,
+						})
+					}
+					acc.context = context[res.data]
+				} else {
+					acc.context = context[curr]
+				}
 				return acc
 			},
 			{
-				context: this.rootContext,
+				context: this._rootContext,
 				result: [] as (typeof this.rootContext)[],
 			}
 		).result
@@ -89,19 +99,12 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		const last = this.path[this.path.length - 1]!
 
 		if (Array.isArray(parent)) {
-			if (typeof last === "number") {
-				parent[last] = value
-				return treeUpdateStatus.CONTEXT_REPLACED
+			const res = numberSchema.safeParse(last)
+			if (!res.success) {
+				return treeUpdateStatus.INVALID_INDEX_TYPE_FOR_ARRAY
 			}
-			if (typeof last === "string") {
-				const index = parseInt(last)
-				if (isNaN(index)) {
-					return treeUpdateStatus.INVALID_STRING_INDEX_FOR_ARRAY
-				}
-				parent[index] = value
-				return treeUpdateStatus.CONTEXT_REPLACED
-			}
-			return treeUpdateStatus.INVALID_INDEX_TYPE_FOR_ARRAY
+			parent[res.data] = value
+			return treeUpdateStatus.CONTEXT_REPLACED
 		}
 
 		parent[last] = value
@@ -144,3 +147,5 @@ interface ArrayMutatingContext extends ObjectTraversalContext {
 }
 
 export type TreeMutatingVisitor = Visitor<ObjectTraversalContext>
+
+
