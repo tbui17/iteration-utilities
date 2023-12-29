@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, expectTypeOf, it } from "vitest"
 import { partitionItems } from "../partitionItems"
 import { z } from "zod"
 
@@ -27,6 +27,32 @@ describe("partitionItems", () => {
 			{ type: "vegetable", name: "carrot" },
 		])
 		expect(orphans).toEqual([{ type: "unknown", name: "mystery" }])
+
+		type Result = {
+			fruit: z.objectOutputType<
+				{
+					type: z.ZodLiteral<"fruit">
+				},
+				z.ZodTypeAny,
+				"passthrough"
+			>[]
+			vegetable: z.objectOutputType<
+				{
+					type: z.ZodLiteral<"vegetable">
+				},
+				z.ZodTypeAny,
+				"passthrough"
+			>[]
+		}
+
+		expectTypeOf(result).toEqualTypeOf<Result>()
+
+		type Orphan = {
+			type: string
+			name: string
+		}[]
+
+		expectTypeOf(orphans).toEqualTypeOf<Orphan>()
 	})
 
 	it("should handle empty items array", () => {

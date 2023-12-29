@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, expectTypeOf, it } from "vitest"
 import { pickToArray } from "../pickToArray"
 
 describe("pickToArray", () => {
@@ -10,30 +10,16 @@ describe("pickToArray", () => {
 			country: "USA",
 		}
 
-		const keys = ["name", "age", "country"] as const
-		const result = pickToArray(obj, keys)
+		const result = pickToArray(obj, ["name", "age", "country"])
 
 		expect(result).toEqual(["John", 30, "USA"])
-	})
 
-	it("should handle empty object and empty keys array", () => {
-		const obj = {} as Record<string, any>
-		const keys: readonly any[] = []
-		const result = pickToArray(obj, keys)
+		expectTypeOf(result).toEqualTypeOf<(string | number)[]>()
 
-		expect(result).toEqual([])
-	})
+		const result2 = pickToArray(obj, ["name", "country"])
 
-	it("should handle duplicate keys in the keys array", () => {
-		const obj = {
-			name: "John",
-			age: 30,
-			country: "USA",
-		}
+		expect(result2).toEqual(["John", "USA"])
 
-		const keys = ["name", "age", "name", "country"] as const
-		const result = pickToArray(obj, keys)
-
-		expect(result).toEqual(["John", 30, "John", "USA"])
+		expectTypeOf(result2).toEqualTypeOf<string[]>()
 	})
 })

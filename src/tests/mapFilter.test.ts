@@ -1,7 +1,42 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, expectTypeOf } from "vitest"
 import { mapFilter } from "../mapFilter"
 
 describe("mapFilter", () => {
+	it("should work with heterogeneous unions and discriminated unions", () => {
+		type DiscrimA = { type: "a"; value: number }
+		const discrimA: DiscrimA = { type: "a", value: 1 }
+		type DiscrimB = { type: "b"; value: string }
+		const discrimB: DiscrimB = { type: "b", value: "2" }
+		type DiscrimUnion = DiscrimA | DiscrimB
+		const discrimUnion: DiscrimUnion[] = [discrimA, discrimB]
+
+		type HeteroA = { prop1: string; prop2: number }
+		const heteroA: HeteroA = { prop1: "prop1", prop2: 2 }
+		type HeteroB = { prop3: boolean; prop4: "prop4" }
+		const heteroB: HeteroB = { prop3: true, prop4: "prop4" }
+		type HeteroUnion = HeteroA | HeteroB
+		const heteroUnion: HeteroUnion[] = [heteroA, heteroB]
+
+		const discrimUnionResult = mapFilter(discrimUnion, (item) => {
+			if (item.type === "a") {
+				return item
+			}
+		})
+
+		expect(discrimUnionResult).toStrictEqual([discrimA])
+
+		expectTypeOf(discrimUnionResult).toEqualTypeOf<DiscrimA[]>()
+
+		const heteroUnionResult = mapFilter(heteroUnion, (item) => {
+			if ("prop1" in item) {
+				return item
+			}
+		})
+		expect(heteroUnionResult).toStrictEqual([heteroA])
+
+		expectTypeOf(heteroUnionResult).toEqualTypeOf<HeteroA[]>()
+	})
+
 	it("should return an empty array when given an empty array", () => {
 		const items: number[] = []
 		const result = mapFilter(items, (item) => item * 2)

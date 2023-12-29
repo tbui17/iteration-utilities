@@ -39,3 +39,4 @@ describe("mergeSets", () => {
 		expect(mergedSet).toEqual(new Set())
 	})
 })
+

@@ -1,28 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { treeBFS } from ".."
-import { isSuccessfulTreeUpdateStatus } from "../treeWalker/treeContext/treeUpdateStatus"
-
-type PathResult = Readonly<(string | number)[]> | undefined
+import {
+	PathResult,
+	basicBfsTreeFixture,
+} from "./testUtils/basicBfsTreeFixture"
 
 describe("treeBFS basic", () => {
-	const tree = {
-		value: 1,
-		depth: 0,
-		left: {
-			value: 2,
-			depth: 1,
-			left: { depth: 2, value: 4, left: null, right: null },
-			right: { depth: 2, value: 5, left: null, right: null },
-		},
-		right: {
-			value: 3,
-			depth: 1,
-			left: { depth: 2, value: 6, left: null, right: null },
-			right: { depth: 2, value: 7, left: null, right: null },
-			UNIQUE_KEY: "UNIQUE_VALUE",
-		},
-	} as const
-
+	const { testAncestors, testPaths, tree } = basicBfsTreeFixture()
+	testAncestors()
+	testPaths()
 	it("should visit the correct order of nodes for a basic tree", () => {
 		const result: number[] = []
 		treeBFS(tree, (ctx) => {
@@ -46,16 +32,6 @@ describe("treeBFS basic", () => {
 		})
 
 		expect(result).toStrictEqual([1, 2])
-	})
-
-	it("should store the correct path", () => {
-		let path: PathResult
-		treeBFS(tree, (ctx) => {
-			if (ctx.isRecord() && ctx.key === "value" && ctx.value === 7) {
-				path = ctx.path
-			}
-		})
-		expect(path).toStrictEqual(["right", "right", "value"])
 	})
 
 	it("should have reference to the root context", () => {
@@ -98,18 +74,6 @@ describe("treeBFS basic", () => {
 			}
 			if (ctx.key === "value" && ctx.value === 5) {
 				expect(ctx.depth).toBe(2)
-			}
-		})
-	})
-
-	it("should retrieve ancestors", () => {
-		treeBFS(tree, (ctx) => {
-			if (ctx.value === 4) {
-				expect(ctx.ancestors).toStrictEqual([
-					tree,
-					tree.left,
-					tree.left.left,
-				])
 			}
 		})
 	})

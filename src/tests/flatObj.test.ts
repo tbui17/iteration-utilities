@@ -1,4 +1,4 @@
-import { expect, it } from "vitest"
+import { expect, expectTypeOf, it } from "vitest"
 import { flatObj } from ".."
 
 it("should remove the selected property key from the merged object if the target is an object.", () => {
@@ -6,6 +6,8 @@ it("should remove the selected property key from the merged object if the target
 	const flat = flatObj(obj, "data")
 
 	expect(flat).not.toHaveProperty("data")
+
+	expectTypeOf(flat).toEqualTypeOf<{ prop1: number; prop2: string }>()
 })
 
 it("should flatten an object with a nested array", () => {
@@ -15,6 +17,8 @@ it("should flatten an object with a nested array", () => {
 		{ prop1: 1, prop2: "value1" },
 		{ prop1: 1, prop2: "value2" },
 	])
+
+	expectTypeOf(flat).toEqualTypeOf<{ prop1: number; prop2: string }[]>()
 })
 
 it("should flatten an array of objects with nested arrays", () => {
@@ -29,6 +33,8 @@ it("should flatten an array of objects with nested arrays", () => {
 		{ prop1: 2, data: "c" },
 		{ prop1: 2, data: "d" },
 	])
+
+	expectTypeOf(flatArray).toEqualTypeOf<{ prop1: number; data: string }[]>()
 })
 
 it("should flatten an object with a nested object", () => {
@@ -43,6 +49,8 @@ it("should flatten an object with a nested object", () => {
 		{ prop1: "abc", data: "value1" },
 		{ prop1: "abc", data: "value2" },
 	])
+
+	expectTypeOf(flat).toEqualTypeOf<{ prop1: string; data: string }[]>()
 })
 
 it("should not override existing properties of the objects within the nested array.", () => {
@@ -56,13 +64,17 @@ it("should not override existing properties of the objects within the nested arr
 	expect(flat).toEqual([
 		{ prop1: 1, prop2: "value1", data: [{ prop3: "value2" }] },
 	])
+
+	expectTypeOf(flat).toEqualTypeOf<
+		{ prop1: number; prop2: string; data: { prop3: string }[] }[]
+	>()
 })
 
 it("should not override existing properties of the nested object.", () => {
 	const obj = {
 		prop1: 1,
 		data: { prop1: "value1", prop2: "value2" },
-	} as const
+	}
 
 	const flat = flatObj(obj, "data")
 
@@ -70,6 +82,8 @@ it("should not override existing properties of the nested object.", () => {
 		prop1: "value1",
 		prop2: "value2",
 	})
+
+	expectTypeOf(flat).toEqualTypeOf<{ prop1: string; prop2: string }>()
 })
 
 const primitives = ["string", 1, true, null, undefined] as const

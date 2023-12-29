@@ -77,7 +77,7 @@ describe("basic postDFS record", () => {
 						traversed = true
 					}
 				})
-				expect(traversed).toBe(true)
+				t.expect(traversed).toBe(true)
 			})
 		})
 	})

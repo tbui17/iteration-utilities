@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, expectTypeOf, it } from "vitest"
 import { mapTupleToObject } from "../mapTupleToObject"
+import { Simplify } from "type-fest"
 
 describe("mapTupleToObject", () => {
 	it("should map a tuple to an object using enums", () => {
@@ -17,6 +18,12 @@ describe("mapTupleToObject", () => {
 			stringValue: "two",
 			booleanValue: true,
 		})
+
+		expectTypeOf(result).toEqualTypeOf<{
+			numberValue: true | 1 | "two"
+			stringValue: true | 1 | "two"
+			booleanValue: true | 1 | "two"
+		}>()
 	})
 
 	it("should handle empty tuple", () => {
@@ -26,6 +33,8 @@ describe("mapTupleToObject", () => {
 		const result = mapTupleToObject(tuple, enums)
 
 		expect(result).toEqual({})
+
+		expectTypeOf(result).toEqualTypeOf<{}>()
 	})
 
 	it("should handle empty enums", () => {
@@ -35,6 +44,8 @@ describe("mapTupleToObject", () => {
 		const result = mapTupleToObject(tuple, enums)
 
 		expect(result).toEqual({})
+
+		expectTypeOf(result).toEqualTypeOf<{}>()
 	})
 
 	it("should handle missing tuple values", () => {
@@ -50,6 +61,11 @@ describe("mapTupleToObject", () => {
 			numberValue: 1,
 			stringValue: "two",
 		})
+
+		expectTypeOf(result).toEqualTypeOf<{
+			numberValue: true | 1 | "two"
+			stringValue: true | 1 | "two"
+		}>()
 	})
 
 	it("should handle extra tuple values", () => {
@@ -67,5 +83,11 @@ describe("mapTupleToObject", () => {
 			stringValue: "two",
 			booleanValue: true,
 		})
+
+		expectTypeOf(result).toEqualTypeOf<{
+			numberValue: true | 1 | "two" | "extra"
+			stringValue: true | 1 | "two" | "extra"
+			booleanValue: true | 1 | "two" | "extra"
+		}>()
 	})
 })
