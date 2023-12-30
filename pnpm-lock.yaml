@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@tbui17/type-utils':
-    specifier: ^1.0.0
-    version: 1.0.0
+    specifier: latest
+    version: 1.0.1
   js-sdsl:
     specifier: ^4.4.2
     version: 4.4.2
@@ -850,8 +850,8 @@ packages:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: true
 
-  /@tbui17/type-utils@1.0.0:
-    resolution: {integrity: sha512-IgKVvxaxtYQIdUypmE4TUG8lNt2NaEDYr6IhBIivDvN5MyKjLXE9Ji2Uv2rgss3dRYtx1JQ8vrUZesWTar+j0Q==}
+  /@tbui17/type-utils@1.0.1:
+    resolution: {integrity: sha512-uu6Vm7YzK3v61D0YpI4OAk1mqsKP2135Jdesoj7BiMQRIAPAOrAhqZPeBVFQYAvpHG4nuW9qrT4dAYKLHzf8Fg==}
     dependencies:
       type-fest: 4.8.3
     dev: false

@@ -21,7 +21,7 @@
     "vitest": "^1.1.0"
   },
   "dependencies": {
-    "@tbui17/type-utils": "^1.0.0",
+    "@tbui17/type-utils": "latest",
     "js-sdsl": "^4.4.2",
     "lodash": "^4.17.21",
     "zod": "^3.22.4"
