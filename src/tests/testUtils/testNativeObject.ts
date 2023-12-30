@@ -1,8 +1,6 @@
 import { z } from "zod"
 import {expect, it} from "vitest"
-import { spreadByPattern } from "../../patternMatch"
-
-
+import { mergeByPattern } from "../../patternMatch"
 
 export function testNativeObject(
 	constructor: () => any,
@@ -33,7 +31,7 @@ export function testNativeObject(
 
 		const value = new Value()
 
-		const result = spreadByPattern({
+		const result = mergeByPattern({
 			value,
 			pattern,
 			fn: () => ({
