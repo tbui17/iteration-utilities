@@ -27,4 +27,5 @@ export {
 	type ObjectTraversalContext,
 	type TupleToObject,
 	type MapGroupEntries,
+	type ObjectOrArray,
 } from "./src/index"

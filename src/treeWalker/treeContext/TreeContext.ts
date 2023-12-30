@@ -1,6 +1,5 @@
 import get from "lodash/get"
 import { isObjectOrArray, numberSchema, PathError, type Visitor } from ".."
-import { treeUpdateStatus } from "./treeUpdateStatus"
 import { BaseTreeContext } from "./baseTreeContext"
 
 /**
@@ -241,7 +240,6 @@ export class TreeContext implements BaseTreeContext {
 interface RecordContext extends TreeContext {
 	get key(): string
 	get context(): Record<string, any>
-	setKey(key: string): typeof treeUpdateStatus.SET_KEY_SUCCESSFUL
 }
 
 /**
@@ -250,13 +248,6 @@ interface RecordContext extends TreeContext {
 interface ArrayContext extends TreeContext {
 	get key(): number
 	get context(): any[]
-	/**
-	 * Cannot set key for array.
-	 * @param CANNOT_SET_KEY_FOR_ARRAY never
-	 */
-	setKey(
-		CANNOT_SET_KEY_FOR_ARRAY: never
-	): typeof treeUpdateStatus.CANNOT_SET_KEY_FOR_ARRAY
 }
 
 /**
