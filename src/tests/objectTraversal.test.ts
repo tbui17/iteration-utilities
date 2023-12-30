@@ -191,6 +191,54 @@ describe("basic postDFS array and record", () => {
 	})
 })
 
+describe("mutations", () => {
+	it("should be able to freely modify the context", () => {
+		const tree = {
+			value: 7,
+			depth: 0,
+			p3: {
+				value: 3,
+				depth: 1,
+				p1: [2, 1, null, null],
+				p2: [2, 2, null, null],
+			},
+			p6: {
+				value: 6,
+				depth: 1,
+				p4: { depth: 2, value: 4, left: null, right: null },
+				p5: { depth: 2, value: 5, left: null, right: null },
+				UNIQUE_KEY: "UNIQUE_VALUE",
+			},
+		} as const
+
+		const expected = {
+			value: 7,
+			depth: 0,
+			p3: {
+				value: 3,
+				depth: 1,
+				p1: [2, 1, null, null],
+				p2: [2, 2, null, null],
+			},
+			p6: {
+				value: 6,
+				depth: 1,
+				p4: { depth: 2, value: 4, left: "leftVal1", right: null },
+				p5: { depth: 2, value: 5, left: null, right: null },
+				UNIQUE_KEY: "UNIQUE_VALUE",
+			},
+		} as const
+
+		postDFSObjectTraversal(tree, (ctx) => {
+			if (ctx.isRecord() && ctx.context.value === 4) {
+				ctx.context.left = "leftVal1"
+			}
+		})
+
+		expect(tree).toStrictEqual(expected)
+	})
+})
+
 describe("merge", () => {
 	it("should merge provided object into the existing object", () => {
 		const tree = {
@@ -631,3 +679,157 @@ describe("replace", () => {
 	)
 })
 
+describe("integration tests", () => {
+	it("changes should target only the p1 and p2 nodes", () => {
+		const tree = {
+			value: 7,
+			depth: 0,
+			p3: {
+				value: 3,
+				depth: 1,
+				p1: { depth: 2, value: 1, left: null, right: null },
+				p2: [2, 2, null, null] as const satisfies ArrayNode,
+			},
+			p6: {
+				value: 6,
+				depth: 1,
+				p4: { depth: 2, value: 4, left: null, right: null },
+				p5: { depth: 2, value: 5, left: null, right: null },
+				UNIQUE_KEY: "UNIQUE_VALUE",
+			},
+		} as const
+		const expected = {
+			value: 7,
+			depth: 0,
+			p3: {
+				value: 3,
+				depth: 1,
+				p1: {
+					depth: 2,
+					value: 1,
+					left: "newLeft",
+					right: null,
+					extraProp: "extraProp",
+				},
+				p2: [
+					2,
+					2,
+					null,
+					null,
+					{ extraProp: "extraProp", left: "newLeft" },
+				] as const,
+			},
+			p6: {
+				value: 6,
+				depth: 1,
+				p4: { depth: 2, value: 4, left: null, right: null },
+				p5: { depth: 2, value: 5, left: null, right: null },
+				UNIQUE_KEY: "UNIQUE_VALUE",
+			},
+		} as const
+
+		postDFSObjectTraversal(tree, (ctx) => {
+			if (ctx.ancestors.includes(tree.p3)) {
+				ctx.merge({ extraProp: "extraProp", left: "newLeft" })
+			}
+		})
+		expect(tree).toStrictEqual(expected)
+	})
+
+	describe("should be able to narrow the scope of change using context checks (p1 and p2)", () => {
+		function createTree() {
+			return {
+				value: 7,
+				depth: 0,
+				p3: {
+					value: 3,
+					depth: 1,
+					p1: { depth: 2, value: 1, left: null, right: null },
+					p2: [2, 2, null, null] as const satisfies ArrayNode,
+				},
+				p6: {
+					value: 6,
+					depth: 1,
+					p4: { depth: 2, value: 4, left: null, right: null },
+					p5: { depth: 2, value: 5, left: null, right: null },
+					UNIQUE_KEY: "UNIQUE_VALUE",
+				},
+			} as const
+		}
+
+		it("array", () => {
+			const arrClone = createTree()
+			const expectedArr = {
+				value: 7,
+				depth: 0,
+				p3: {
+					value: 3,
+					depth: 1,
+					p1: {
+						depth: 2,
+						value: 1,
+						left: null,
+						right: null,
+					},
+					p2: [
+						2,
+						2,
+						null,
+						null,
+						{ extraProp: "extraProp", left: "newLeft" },
+					] as const,
+				},
+				p6: {
+					value: 6,
+					depth: 1,
+					p4: { depth: 2, value: 4, left: null, right: null },
+					p5: { depth: 2, value: 5, left: null, right: null },
+					UNIQUE_KEY: "UNIQUE_VALUE",
+				},
+			} as const
+			postDFSObjectTraversal(arrClone, (ctx) => {
+				if (ctx.isArray() && ctx.ancestors.includes(arrClone.p3)) {
+					ctx.merge({
+						extraProp: "extraProp",
+						left: "newLeft",
+					})
+				}
+			})
+
+			expect(arrClone).toStrictEqual(expectedArr)
+		})
+
+		it("record", () => {
+			const expectedRecord = {
+				value: 7,
+				depth: 0,
+				p3: {
+					value: 3,
+					depth: 1,
+					p1: {
+						depth: 2,
+						value: 1,
+						left: "newLeft",
+						right: null,
+						extraProp: "extraProp",
+					},
+					p2: [2, 2, null, null] as const,
+				},
+				p6: {
+					value: 6,
+					depth: 1,
+					p4: { depth: 2, value: 4, left: null, right: null },
+					p5: { depth: 2, value: 5, left: null, right: null },
+					UNIQUE_KEY: "UNIQUE_VALUE",
+				},
+			} as const
+			const recordClone = createTree()
+			postDFSObjectTraversal(recordClone, (ctx) => {
+				if (ctx.isRecord() && ctx.ancestors.includes(recordClone.p3)) {
+					ctx.merge({ extraProp: "extraProp", left: "newLeft" })
+				}
+			})
+			expect(recordClone).toStrictEqual(expectedRecord)
+		})
+	})
+})

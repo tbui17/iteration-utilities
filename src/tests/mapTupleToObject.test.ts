@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
-import { mapTupleToObject } from "../mapTupleToObject"
-import { Simplify } from "type-fest"
+import { mapTupleToObject } from "../mappers"
+
 
 describe("mapTupleToObject", () => {
 	it("should map a tuple to an object using enums", () => {

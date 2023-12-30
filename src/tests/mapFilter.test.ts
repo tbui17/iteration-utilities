@@ -1,5 +1,5 @@
 import { describe, expect, it, expectTypeOf } from "vitest"
-import { mapFilter } from "../mapFilter"
+import { mapFilter, mapGroups, mapPartition } from "../mappers"
 
 describe("mapFilter", () => {
 	it("should work with heterogeneous unions and discriminated unions", () => {
@@ -75,5 +75,124 @@ describe("mapFilter", () => {
 			}
 		})
 		expect(result).toStrictEqual([2, "four"])
+	})
+})
+
+type Items =
+	| {
+			type: "fruit"
+			name: string
+			abc: string
+			ddd: string
+	  }
+	| {
+			type: "vegetable"
+			name: string
+			def: string
+	  }
+	| {
+			type: "abc"
+			name: 12345
+			def: string
+	  }
+	| {
+			type: "fruit"
+			name: string
+			abc: string
+	  }
+	| {
+			type: "unknown"
+			name: string
+			def: string
+	  }
+const items: Items[] = [
+	{ type: "fruit", name: "apple", abc: "a", ddd: "a" },
+	{ type: "vegetable", name: "carrot", def: "b" },
+	{ type: "fruit", name: "banana", abc: "d" },
+	{ type: "unknown", name: "mystery", def: "h" },
+	{ type: "abc" as const, name: 12345, def: "h" } as const,
+]
+
+describe("mapFilterGroups", () => {
+	it("should be able to infer type from structural filtering", () => {
+		const res = mapGroups(items, {
+			fruit1(item) {
+				if ("ddd" in item) {
+					return item
+				}
+			},
+			abc(item) {
+				if (item.type === "abc") {
+					return item
+				}
+			},
+			fruit2(item) {
+				if (item.type === "fruit") {
+					return item
+				}
+			},
+			fruit3(item) {
+				if (item.type === "fruit" && "ddd" in item) {
+					return item
+				}
+			},
+		})
+
+		const expected = {
+			fruit1: [{ type: "fruit", name: "apple", abc: "a", ddd: "a" }],
+			abc: [{ type: "abc", name: 12345, def: "h" }],
+			fruit2: [
+				{ type: "fruit", name: "apple", abc: "a", ddd: "a" },
+				{ type: "fruit", name: "banana", abc: "d" },
+			],
+			fruit3: [{ type: "fruit", name: "apple", abc: "a", ddd: "a" }],
+		}
+
+		expect(res).toEqual(expected)
+
+		expectTypeOf(res).toEqualTypeOf<{
+			fruit1: { type: "fruit"; name: string; abc: string; ddd: string }[]
+			abc: { type: "abc"; name: 12345; def: string }[]
+			fruit2: { type: "fruit"; name: string; abc: string }[]
+			fruit3: { type: "fruit"; name: string; abc: string; ddd: string }[]
+		}>()
+	})
+})
+
+describe("mapFilterPartition", () => {
+	it("should order by key order on conflicts", () => {
+		const { orphans, result } = mapPartition(items, {
+			fruit(item) {
+				if (item.type === "fruit" && item.name.length > 1) {
+					return item
+				}
+			},
+			fruit2(item) {
+				if (item.type === "fruit" && item.name.length > 2) {
+					return item
+				}
+			},
+		})
+
+		expect(result.fruit.length).toBe(2)
+		expect(result.fruit2.length).toBe(0)
+		expect(orphans.length).toBe(3)
+
+		const total =
+			result.fruit.length + result.fruit2.length + orphans.length
+		expect(total).toBe(items.length)
+
+		expectTypeOf(result).toEqualTypeOf<{
+			fruit: {
+				type: "fruit"
+				name: string
+				abc: string
+			}[]
+			fruit2: {
+				type: "fruit"
+				name: string
+				abc: string
+			}[]
+		}>
 	})
 })
