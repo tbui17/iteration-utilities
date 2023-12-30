@@ -1,9 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
-import { replaceByPattern, spreadByPattern } from "../patternMatch"
+import { replaceByPattern, mergeByPattern } from "../patternMatch"
 import * as z from "zod"
 import _ from "lodash"
 import { testNativeObject } from "./testUtils/testNativeObject"
-import { Simplify } from "type-fest"
 
 describe("basic matching", () => {
 	it("having all properties should succeed", () => {
@@ -17,7 +16,7 @@ describe("basic matching", () => {
 			age: z.number(),
 		})
 
-		const result = spreadByPattern({
+		const result = mergeByPattern({
 			value,
 			pattern,
 			fn: () => ({
@@ -47,7 +46,7 @@ describe("basic matching", () => {
 			extraProp1: z.string(),
 		})
 
-		const result = spreadByPattern({
+		const result = mergeByPattern({
 			value,
 			pattern,
 			fn: () => ({
@@ -75,7 +74,7 @@ describe("basic matching", () => {
 			age: z.number(),
 		})
 
-		const result = spreadByPattern({
+		const result = mergeByPattern({
 			value,
 			pattern,
 			fn: () => ({
@@ -106,7 +105,7 @@ describe("object mutation", () => {
 			age: z.number(),
 		})
 
-		const result = spreadByPattern({
+		const result = mergeByPattern({
 			value,
 			pattern,
 			fn: () => ({
@@ -141,7 +140,7 @@ describe("object mutation", () => {
 			age: z.number(),
 		})
 
-		const result = spreadByPattern({
+		const result = mergeByPattern({
 			value,
 			pattern,
 			fn: () => ({
@@ -196,7 +195,7 @@ describe("class matching", () => {
 			age: z.number(),
 		})
 
-		const result = spreadByPattern({
+		const result = mergeByPattern({
 			value,
 			pattern,
 			fn: () => ({
@@ -204,13 +203,23 @@ describe("class matching", () => {
 			}),
 		})
 
+		type ExpectedType = {
+			name: string
+			age: number
+			prop4: Date
+			method1: (prop1: string) => void
+			extraProperty: string
+		}
+
+		expectTypeOf(result).toEqualTypeOf<ExpectedType>()
+
 		expect(result).toHaveProperty("extraProperty", "extraPropertyValue")
 	})
 
 	it("should match on non enumerable properties", () => {
 		const value = new TestValue2("John", 30, new Date())
 
-		const result2 = spreadByPattern({
+		const result2 = mergeByPattern({
 			value,
 			pattern: z.object({
 				getTime: z.function(),
@@ -226,7 +235,7 @@ describe("class matching", () => {
 	it("should match on enumerable properties", () => {
 		const value = new TestValue3("John", 30, new Date(), () => 1)
 
-		const result2 = spreadByPattern({
+		const result2 = mergeByPattern({
 			value,
 			pattern: z.object({
 				getTime: z.function(),
@@ -345,6 +354,7 @@ describe("replace", () => {
 				}
 			}
 		}
+
 		const deploymentConfigs: DeploymentConfig = {
 			development: {
 				server: "dev-server",
@@ -418,10 +428,25 @@ describe("replace", () => {
 			value: deploymentConfigs,
 			pattern: featuresSchema,
 			fn(ctx) {
-				type ExpectedCtx = Record<string, any> & {
-					enableDebug: boolean
-					loggingLevel: string
-				}
+				type ExpectedCtx = (
+					| {
+							enableDebug: boolean
+							loggingLevel: string
+							container: {
+								name: string
+								image: string
+							}
+					  }
+					| {
+							enableDebug: boolean
+							loggingLevel: string
+							container: {
+								name: string
+								image: string
+							}
+					  }
+				) &
+					Record<string, any>
 				expectTypeOf(ctx).toEqualTypeOf<ExpectedCtx>()
 				return {
 					replaced: 100,
@@ -430,9 +455,7 @@ describe("replace", () => {
 			},
 			shouldClone: true,
 		})
-
 		expect(res).toEqual(expected)
-
 		expectTypeOf(res).toEqualTypeOf<ExpectedType>()
 	})
 })
@@ -448,7 +471,7 @@ describe("demo", () => {
 					enableDebug: boolean
 					loggingLevel: string
 					container: {
-						name: string
+						name: "dev-container"
 						image: string
 					}
 				}
@@ -460,7 +483,7 @@ describe("demo", () => {
 					enableDebug: boolean
 					loggingLevel: string
 					container: {
-						name: string
+						name: "prod-container"
 						image: string
 					}
 				}
@@ -501,17 +524,34 @@ describe("demo", () => {
 			loggingLevel: z.string(),
 		})
 
-		// Using spreadByPattern to add a monitoringEnabled property
-		const updatedConfig = spreadByPattern({
+		// Using mergeByPattern to add a monitoringEnabled property
+		const updatedConfig = mergeByPattern({
 			value: deploymentConfigs,
 			pattern: featuresSchema,
 			fn: (ctx) => {
 				// Adding a monitoringEnabled property based on the enableDebug setting
-				// Context type is also partially inferred, based on provided schema.
-				type InferredContextType = Record<string, any> & {
-					enableDebug: boolean
-					loggingLevel: string
-				}
+				// Context type is also inferred.
+				type InferredContextType = (
+					| {
+							enableDebug: boolean
+							loggingLevel: string
+							container: {
+								name: "dev-container"
+								image: string
+							}
+					  }
+					| {
+							enableDebug: boolean
+							loggingLevel: string
+							container: {
+								name: "prod-container"
+								image: string
+							}
+					  }
+				) &
+					Record<string, any>
+
+				expectTypeOf(ctx).toEqualTypeOf<InferredContextType>()
 				return {
 					monitoringEnabled: ctx.enableDebug,
 				}
@@ -527,7 +567,7 @@ describe("demo", () => {
 					enableDebug: boolean
 					loggingLevel: string
 					container: {
-						name: string
+						name: "dev-container"
 						image: string
 					}
 					monitoringEnabled: boolean
@@ -540,7 +580,7 @@ describe("demo", () => {
 					enableDebug: boolean
 					loggingLevel: string
 					container: {
-						name: string
+						name: "prod-container"
 						image: string
 					}
 					monitoringEnabled: boolean
@@ -577,6 +617,9 @@ describe("demo", () => {
 			},
 		}
 
-		expect(updatedConfig).toEqual(expectedOutput)
+		expectTypeOf(updatedConfig).toEqualTypeOf<InferredUpdatedConfigType>()
+
+		expect(updatedConfig).toStrictEqual(expectedOutput)
 	})
 })
+
