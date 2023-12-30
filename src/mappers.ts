@@ -10,9 +10,9 @@ import mapValues from "lodash/mapValues"
  * @template TValue - The type of elements in the input array.
  * @template TReturn - The type of elements in the returned array.
  */
-export function mapFilter<TValue, TReturn>(
-	items: TValue[],
-	fn: (item: TValue) => TReturn
+export function mapFilter<TValue extends any[], TReturn>(
+	items: TValue,
+	fn: (item: TValue[number]) => TReturn
 ) {
 	const result: TReturn[] = []
 	for (let i = 0; i < items.length; i++) {
@@ -22,7 +22,7 @@ export function mapFilter<TValue, TReturn>(
 			result.push(res)
 		}
 	}
-	return result as Exclude<TReturn,undefined>[]
+	return result as Exclude<TReturn, undefined>[]
 }
 
 /**
@@ -143,7 +143,8 @@ export function mapPartition<TItems extends any[], TPartitionFunctions extends M
 		}
 		orphans: TItems
 	}
-}/**
+}
+/**
  * Maps a tuple to an object using the provided enums.
  *
  * @template TTuple - The type of the input tuple.

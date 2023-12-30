@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsup index.ts --format cjs,esm --dts",
     "release": "pnpm run build && changeset publish",
-    "lint": "tsc"
+    "lint": "tsc",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@changesets/cli": "latest",
@@ -17,6 +18,7 @@
     "ts-toolbelt": "^9.6.0",
     "tsup": "latest",
     "type-fest": "^4.8.3",
+    "typedoc": "^0.25.4",
     "typescript": "^5.3.3",
     "vitest": "^1.1.0"
   },

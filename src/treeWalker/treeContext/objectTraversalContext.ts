@@ -11,6 +11,9 @@ import { Merger } from "./Merger"
 import { treeUpdateStatus } from "./treeUpdateStatus"
 import { type TreeContextConstructor } from "./treeContextConstructor"
 
+/**
+ * Shares many similar methods with TreeContext, refer to that class for documentation.
+ */
 export class ObjectTraversalContext implements BaseTreeContext {
 	private _context: Record<string, any> | any[]
 	public readonly depth: number
@@ -73,6 +76,13 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		return this._rootContext
 	}
 
+	/**
+	 * Merges the provided context with the current context.
+	 * 
+	 * @param newContext - The new context to merge.
+	 * @param removeExisting - Optional. Specifies whether to remove existing values in the current context. Default is false.
+	 * @returns The status of the context merge operation.
+	 */
 	public merge(newContext: ObjectOrArray, removeExisting = false) {
 		if (!isObjectOrArray(newContext)) {
 			return treeUpdateStatus.NOT_CONTEXT_OR_ARRAY
@@ -90,6 +100,14 @@ export class ObjectTraversalContext implements BaseTreeContext {
 			: get(this.rootContext, this.path.slice(0, -1))
 	}
 
+	/**
+	 * Replaces the value at the current path with the specified value.
+	 * If the current context is already at the root or an empty path, it returns `treeUpdateStatus.ALREADY_AT_ROOT_OR_EMPTY_PATH`.
+	 * If the parent is an array and the last path element is not a valid index, it returns `treeUpdateStatus.INVALID_INDEX_TYPE_FOR_ARRAY`.
+	 * Otherwise, it replaces the value at the current path and returns `treeUpdateStatus.CONTEXT_REPLACED`.
+	 * @param value The value to replace with.
+	 * @returns The status of the tree update operation.
+	 */
 	public replace(value: {} | null) {
 		const parent = this.parent
 		if (!parent) {

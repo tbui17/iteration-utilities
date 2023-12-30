@@ -1,5 +1,5 @@
 import { describe, expect, it, expectTypeOf } from "vitest"
-import { mapFilter, mapGroups, mapPartition } from "../mappers"
+import { mapFilter, mapFind, mapGroups, mapPartition } from "../mappers"
 
 describe("mapFilter", () => {
 	it("should work with heterogeneous unions and discriminated unions", () => {
@@ -156,6 +156,101 @@ describe("mapFilterGroups", () => {
 			fruit2: { type: "fruit"; name: string; abc: string }[]
 			fruit3: { type: "fruit"; name: string; abc: string; ddd: string }[]
 		}>()
+	})
+})
+
+describe("mapFind", () => {
+	it("should be able to narrow down the type of an array of union types and among the ones that match the condition, only the first is obtained.", () => {
+		type Items =
+			| {
+					type: "fruit"
+					name: string
+					abc: string
+					ddd: string
+			  }
+			| {
+					type: "vegetable"
+					name: string
+					def: string
+			  }
+			| {
+					type: "fruit"
+					name: string
+					cvb: string
+			  }
+
+		const items: Items[] = [
+			{ type: "fruit", name: "apple", abc: "a", ddd: "a" },
+			{ type: "vegetable", name: "carrot", def: "b" },
+			{ type: "fruit", name: "banana", cvb: "d" },
+		]
+
+		const res = mapFind(items, (item) => {
+			if (item.type === "fruit") {
+				return item
+			}
+		})
+		type Expected =
+			| {
+					type: "fruit"
+					name: string
+					abc: string
+					ddd: string
+			  }
+			| {
+					type: "fruit"
+					name: string
+					cvb: string
+			  }
+			| undefined
+		expectTypeOf(res).toEqualTypeOf<Expected>()
+
+		expect(res).toEqual({
+			type: "fruit",
+			name: "apple",
+			abc: "a",
+			ddd: "a",
+		})
+	})
+
+	it("should return undefined when given an empty array", () => {
+		const items: number[] = []
+		const result = mapFind(items, (item) => item * 2)
+		expect(result).toBe(undefined)
+	})
+
+	it("should return the first mapped value that matches the predicate", () => {
+		const items = [1, 2, 3, 4, 5]
+		const result = mapFind(items, (item) => {
+			if (item % 2 === 0) {
+				return item * 2
+			}
+		})
+		expect(result).toBe(4)
+	})
+
+	it("should handle undefined values returned by the mapping function", () => {
+		const items = [1, 2, 3, 4, 5]
+		const result = mapFind(items, (item) => {
+			if (item % 2 === 0) {
+				return undefined
+			}
+			return item * 2
+		})
+		expect(result).toBe(2)
+	})
+
+	it("should handle different types of input and output values", () => {
+		const items = ["a", "b", "c", "d", "e"]
+		const result = mapFind(items, (item) => {
+			if (item === "b") {
+				return 2
+			}
+			if (item === "d") {
+				return "four"
+			}
+		})
+		expect(result).toBe(2)
 	})
 })
 
