@@ -11,13 +11,14 @@
     /* Strictness */
     "strictPropertyInitialization": true,
     "noErrorTruncation": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
     "incremental": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    
+    
     /* If NOT transpiling with TypeScript: */
     "moduleResolution": "Bundler",
     "module": "ESNext",
