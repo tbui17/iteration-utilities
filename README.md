@@ -52,6 +52,7 @@ Lodash-like functions with an emphasis on type inference. Cuts down on boilerpla
 - mergeByPattern: Receives a Zod pattern and recursively matches subpatterns within a complex tree structure such as configuration files, nested Prisma objects, or GraphQL queries, then merges the object provided by the callback function into the matched subpatterns. Automatically infers context received by the callback function as well as the result of the merge operation.
 - mapPartition: Define a key value map of filtering functions (with context type inferred) and partition an array of union items into subsets associated with the defined key.
 - reduceToObject: Similar to reduce. Return a key value tuple within the callback to assign the result to a key.
+- getTreeNodes: Returns an array of all nodes from a tree structure and infers the union type of its nodes.
 
 Also includes tree traversal iterators including BFS and a specialized version of post-order DFS with an API designed to help facilitate safe tree mutation operations.
 
