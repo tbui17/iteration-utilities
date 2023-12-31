@@ -1,8 +1,9 @@
 import { z } from "zod"
 import { type ObjectOrArray } from "./types"
+import { notMatchable } from "."
 
 export function isObjectOrArray(value: any): value is ObjectOrArray {
-	return typeof value === "object" && value !== null
+	return typeof value === "object" && value !== null && !notMatchable(value)
 }
 
 export function getEntriesOfObjectOrArray(value: ObjectOrArray) {
