@@ -22,6 +22,7 @@ export {
 	treeUpdateStatus,
 	getEntriesOfObjectOrArray,
 	getValuesOfObjectOrArray,
+	getTreeNodes,
 	PathError,
 	type TreeContext,
 	type ObjectTraversalContext,

@@ -6,7 +6,7 @@ import {
 	type ReplaceDeepObject,
 	type ReplaceDeepWithinObject,
 	type ExtractObjectsDeep,
-} from "@tbui17/type-utils"
+} from "@tbui17/type-utils/src"
 import { cloneDeep } from "lodash"
 
 /**

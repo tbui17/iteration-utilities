@@ -1,4 +1,4 @@
-import { ExtractObjectsDeep, Flatten } from "@tbui17/type-utils"
+import { ExtractObjectsDeep, Flatten } from "@tbui17/type-utils/src"
 import { ObjectTraversalContext, postDFSObjectTraversal } from "."
 
 /**
