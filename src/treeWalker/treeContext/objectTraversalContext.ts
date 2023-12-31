@@ -5,11 +5,11 @@ import {
 	type Visitor,
 	BaseTreeContext,
 	numberSchema,
-	PathError,
 } from ".."
 import { Merger } from "./Merger"
 import { treeUpdateStatus } from "./treeUpdateStatus"
 import { type TreeContextConstructor } from "./treeContextConstructor"
+import { getAncestor } from "./getAncestor"
 
 /**
  * Shares many similar methods with TreeContext, refer to that class for documentation.
@@ -19,7 +19,6 @@ export class ObjectTraversalContext implements BaseTreeContext {
 	public readonly depth: number
 	private breakEmitter: () => void
 	public readonly path: Readonly<(string | number)[]>
-
 	private _rootContext: Record<string, any> | any[]
 	public constructor({
 		context,
@@ -40,28 +39,7 @@ export class ObjectTraversalContext implements BaseTreeContext {
 	}
 
 	get ancestors(): (Record<string, any> | any[])[] {
-		return this.path.reduce(
-			(acc, curr) => {
-				acc.result.push(acc.context)
-				const { context } = acc
-				if (Array.isArray(context)) {
-					const res = numberSchema.safeParse(curr)
-					if (!res.success) {
-						throw new PathError(curr, this.path, {
-							cause: res.error,
-						})
-					}
-					acc.context = context[res.data]
-				} else {
-					acc.context = context[curr]
-				}
-				return acc
-			},
-			{
-				context: this._rootContext,
-				result: [] as (typeof this.rootContext)[],
-			}
-		).result
+		return getAncestor(this._rootContext, this.path)
 	}
 
 	public break(): void {

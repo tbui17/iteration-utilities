@@ -1,4 +1,5 @@
 export * from "./baseTreeContext"
+export * from "./getAncestor"
 export * from "./Merger"
 export * from "./objectTraversalContext"
 export * from "./TreeContext"

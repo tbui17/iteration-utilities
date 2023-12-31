@@ -5,6 +5,7 @@ import {
 	type ObjectOrArray,
 	PathError,
 	type Visitor,
+	getAncestor,
 } from ".."
 import { BaseTreeContext } from "./baseTreeContext"
 
@@ -157,28 +158,7 @@ export class TreeContext implements BaseTreeContext {
 	 * @returns {Array<Record<string, any> | any[]>} The array of ancestors.
 	 */
 	get ancestors(): (Record<string, any> | any[])[] {
-		return this.path.reduce(
-			(acc, curr) => {
-				acc.result.push(acc.context)
-				const { context } = acc
-				if (Array.isArray(context)) {
-					const res = numberSchema.safeParse(curr)
-					if (!res.success) {
-						throw new PathError(curr, this.path, {
-							cause: res.error,
-						})
-					}
-					acc.context = context[res.data]
-				} else {
-					acc.context = context[curr]
-				}
-				return acc
-			},
-			{
-				context: this._rootContext,
-				result: [] as (typeof this.rootContext)[],
-			}
-		).result
+		return getAncestor(this.rootContext, this.path)
 	}
 
 	/**
