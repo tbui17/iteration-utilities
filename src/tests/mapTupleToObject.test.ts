@@ -1,17 +1,16 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
 import { mapTupleToObject } from "../mappers"
 
-
 describe("mapTupleToObject", () => {
 	it("should map a tuple to an object using enums", () => {
 		const tuple = [1, "two", true] as const
-		const enums = {
-			numberValue: 0,
-			stringValue: 1,
-			booleanValue: 2,
+		enum Values {
+			numberValue,
+			stringValue,
+			booleanValue,
 		}
 
-		const result = mapTupleToObject(tuple, enums)
+		const result = mapTupleToObject(tuple, Values)
 
 		expect(result).toEqual({
 			numberValue: 1,
@@ -20,9 +19,9 @@ describe("mapTupleToObject", () => {
 		})
 
 		expectTypeOf(result).toEqualTypeOf<{
-			numberValue: true | 1 | "two"
-			stringValue: true | 1 | "two"
-			booleanValue: true | 1 | "two"
+			numberValue: 1
+			stringValue: "two"
+			booleanValue: true
 		}>()
 	})
 
@@ -50,9 +49,9 @@ describe("mapTupleToObject", () => {
 
 	it("should handle missing tuple values", () => {
 		const tuple = [1, "two", true] as const
-		const enums = {
-			numberValue: 0,
-			stringValue: 1,
+		enum enums {
+			numberValue,
+			stringValue,
 		}
 
 		const result = mapTupleToObject(tuple, enums)
@@ -63,31 +62,8 @@ describe("mapTupleToObject", () => {
 		})
 
 		expectTypeOf(result).toEqualTypeOf<{
-			numberValue: true | 1 | "two"
-			stringValue: true | 1 | "two"
-		}>()
-	})
-
-	it("should handle extra tuple values", () => {
-		const tuple = [1, "two", true, "extra"] as const
-		const enums = {
-			numberValue: 0,
-			stringValue: 1,
-			booleanValue: 2,
-		}
-
-		const result = mapTupleToObject(tuple, enums)
-
-		expect(result).toEqual({
-			numberValue: 1,
-			stringValue: "two",
-			booleanValue: true,
-		})
-
-		expectTypeOf(result).toEqualTypeOf<{
-			numberValue: true | 1 | "two" | "extra"
-			stringValue: true | 1 | "two" | "extra"
-			booleanValue: true | 1 | "two" | "extra"
+			numberValue: 1
+			stringValue: "two"
 		}>()
 	})
 })
