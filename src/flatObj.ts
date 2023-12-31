@@ -68,7 +68,7 @@ export function flatObj<T extends Record<string, any>, K extends keyof T>(
 function pullDown<T extends Record<string, any>, K extends keyof T>(
 	obj: T,
 	key: K
-) {
+): any {
 	const collection = obj[key]
 	if (!Array.isArray(collection)) {
 		if (typeof collection === "object" && collection !== null) {

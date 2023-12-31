@@ -1,5 +1,11 @@
 import get from "lodash/get"
-import { isObjectOrArray, numberSchema, PathError, type Visitor } from ".."
+import {
+	isObjectOrArray,
+	numberSchema,
+	type ObjectOrArray,
+	PathError,
+	type Visitor,
+} from ".."
 import { BaseTreeContext } from "./baseTreeContext"
 
 /**
@@ -83,7 +89,7 @@ export class TreeContext implements BaseTreeContext {
 	 *
 	 * @returns {Array<object | Array<any>>} The child objects or arrays.
 	 */
-	get children() {
+	get children(): ObjectOrArray[] {
 		return Object.values(this._context).filter(isObjectOrArray)
 	}
 
@@ -94,7 +100,7 @@ export class TreeContext implements BaseTreeContext {
 	 *
 	 * @returns The value of the node.
 	 */
-	public get value() {
+	public get value(): any {
 		return this._value
 	}
 
@@ -114,7 +120,7 @@ export class TreeContext implements BaseTreeContext {
 	 * Gets the key of the current context node.
 	 * @returns The key of the node.
 	 */
-	public get key() {
+	public get key(): string | number {
 		return this._key
 	}
 
@@ -130,7 +136,7 @@ export class TreeContext implements BaseTreeContext {
 	 * Checks if the current context is at the root of the tree.
 	 * @returns True if at the root, false otherwise.
 	 */
-	public isAtRoot() {
+	public isAtRoot(): boolean {
 		return this.path.length === 1
 	}
 
@@ -178,7 +184,7 @@ export class TreeContext implements BaseTreeContext {
 	/**
 	 * Signals to break out of the tree traversal.
 	 */
-	public break() {
+	public break(): void {
 		this.breakEmitter()
 	}
 
@@ -214,7 +220,7 @@ export class TreeContext implements BaseTreeContext {
 	 * @returns The context as a record.
 	 * @throws Error if the context is an array.
 	 */
-	public getOrThrowRecordContext() {
+	public getOrThrowRecordContext(): Record<string, any> {
 		if (Array.isArray(this._context)) {
 			throw new Error("Expected record context")
 		}
@@ -226,7 +232,7 @@ export class TreeContext implements BaseTreeContext {
 	 * @returns The context as an array.
 	 * @throws Error if the context is not an array.
 	 */
-	public getOrThrowArrayContext() {
+	public getOrThrowArrayContext(): any[] {
 		if (!Array.isArray(this._context)) {
 			throw new Error("Expected array context")
 		}

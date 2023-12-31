@@ -9,7 +9,7 @@
 export function twoPointerEach<T>(
 	items: T[],
 	cb: (a: T, b: T, i: number, j: number, entities: T[]) => void
-) {
+): void {
 	for (let i = 0; i < items.length; i++) {
 		const left = items[i]
 		for (let j = i + 1; j < items.length; j++) {
@@ -31,7 +31,7 @@ export function twoPointerEach<T>(
 export function twoPointerMap<T, R>(
 	items: T[],
 	cb: (a: T, b: T, i: number, j: number, entities: T[]) => R
-) {
+): R[] {
 	const result: R[] = []
 
 	for (let i = 0; i < items.length; i++) {
@@ -62,7 +62,7 @@ export function twoPointerMap<T, R>(
 export function twoPointerMapFilter<T, R>(
 	items: T[],
 	cb: (a: T, b: T, i: number, j: number, entities: T[]) => R | undefined
-) {
+): R[] {
 	const result: R[] = []
 
 	for (let i = 0; i < items.length; i++) {

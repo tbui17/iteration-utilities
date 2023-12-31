@@ -13,7 +13,7 @@ import mapValues from "lodash/mapValues"
 export function mapFilter<TValue extends any[], TReturn>(
 	items: TValue,
 	fn: (item: TValue[number]) => TReturn
-) {
+): Exclude<TReturn, undefined>[] {
 	const result: TReturn[] = []
 	for (let i = 0; i < items.length; i++) {
 		const item = items[i]
@@ -70,7 +70,7 @@ export type MapGroupEntries<T extends any[] = any[]> = Record<
  */
 export function mapGroups<
 	TItems extends any[],
-	TMapGroupEntries extends MapGroupEntries<TItems>
+	TMapGroupEntries extends MapGroupEntries<TItems>,
 >(
 	items: TItems,
 	fns: TMapGroupEntries
@@ -103,10 +103,21 @@ export function mapGroups<
  *   orphans: TItems[]
  * }} - An object containing the partitioned collections and the orphans collection.
  */
-export function mapPartition<TItems extends any[], TPartitionFunctions extends MapGroupEntries<TItems>>(
+export function mapPartition<
+	TItems extends any[],
+	TPartitionFunctions extends MapGroupEntries<TItems>,
+>(
 	items: TItems,
 	fns: TPartitionFunctions
-) {
+): {
+	result: {
+		[K in keyof TPartitionFunctions]: Exclude<
+			ReturnType<TPartitionFunctions[K]>,
+			undefined
+		>[]
+	}
+	orphans: TItems
+} {
 	const collection = mapValues(fns, (mapper) => {
 		return {
 			mapper,
@@ -139,7 +150,10 @@ export function mapPartition<TItems extends any[], TPartitionFunctions extends M
 		orphans,
 	} as {
 		result: {
-			[K in keyof TPartitionFunctions]: Exclude<ReturnType<TPartitionFunctions[K]>, undefined>[]
+			[K in keyof TPartitionFunctions]: Exclude<
+				ReturnType<TPartitionFunctions[K]>,
+				undefined
+			>[]
 		}
 		orphans: TItems
 	}
@@ -155,8 +169,8 @@ export function mapPartition<TItems extends any[], TPartitionFunctions extends M
  */
 export function mapTupleToObject<
 	TTuple extends Readonly<any[]>,
-	TEnums extends Record<string, any>
->(tuple: TTuple, enums: TEnums) {
+	TEnums extends Record<string, any>,
+>(tuple: TTuple, enums: TEnums): TupleToObject<TTuple, TEnums> {
 	const result = {} as TupleToObject<TTuple, TEnums>
 
 	for (const key in enums) {

@@ -35,7 +35,7 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		this._rootContext = rootContext
 	}
 
-	get children() {
+	get children(): ObjectOrArray[] {
 		return Object.values(this._context).filter(isObjectOrArray)
 	}
 
@@ -64,11 +64,11 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		).result
 	}
 
-	public break() {
+	public break(): void {
 		this.breakEmitter()
 	}
 
-	public get context() {
+	public get context(): any[] | Record<string, any> {
 		return this._context
 	}
 
@@ -78,12 +78,15 @@ export class ObjectTraversalContext implements BaseTreeContext {
 
 	/**
 	 * Merges the provided context with the current context.
-	 * 
+	 *
 	 * @param newContext - The new context to merge.
 	 * @param removeExisting - Optional. Specifies whether to remove existing values in the current context. Default is false.
 	 * @returns The status of the context merge operation.
 	 */
-	public merge(newContext: ObjectOrArray, removeExisting = false) {
+	public merge(
+		newContext: ObjectOrArray,
+		removeExisting = false
+	): "CONTEXT_MERGED" | "NOT_CONTEXT_OR_ARRAY" {
 		if (!isObjectOrArray(newContext)) {
 			return treeUpdateStatus.NOT_CONTEXT_OR_ARRAY
 		}
@@ -108,7 +111,12 @@ export class ObjectTraversalContext implements BaseTreeContext {
 	 * @param value The value to replace with.
 	 * @returns The status of the tree update operation.
 	 */
-	public replace(value: {} | null) {
+	public replace(
+		value: {} | null
+	):
+		| "CONTEXT_REPLACED"
+		| "ALREADY_AT_ROOT_OR_EMPTY_PATH"
+		| "INVALID_INDEX_TYPE_FOR_ARRAY" {
 		const parent = this.parent
 		if (!parent) {
 			return treeUpdateStatus.ALREADY_AT_ROOT_OR_EMPTY_PATH
@@ -129,7 +137,7 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		return treeUpdateStatus.CONTEXT_REPLACED
 	}
 
-	public isAtRoot() {
+	public isAtRoot(): boolean {
 		return this.path.length === 0
 	}
 
@@ -141,14 +149,14 @@ export class ObjectTraversalContext implements BaseTreeContext {
 		return !this.isArray()
 	}
 
-	public getOrThrowRecordContext() {
+	public getOrThrowRecordContext(): Record<string, any> {
 		if (Array.isArray(this.context)) {
 			throw new Error("Expected record context")
 		}
 		return this.context
 	}
 
-	public getOrThrowArrayContext() {
+	public getOrThrowArrayContext(): any[] {
 		if (!Array.isArray(this.context)) {
 			throw new Error("Expected array context")
 		}
