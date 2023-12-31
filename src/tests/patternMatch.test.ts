@@ -269,7 +269,7 @@ describe("special objects", () => {
 	)
 	testNativeObject(() => new Map(), ["size"])
 	testNativeObject(() => new Set(), ["size"])
-	testNativeObject(() => new Function("function1"), ["name"])
+	testNativeObject(() => () => true, ["name"])
 	testNativeObject(() => [], ["length"])
 })
 
@@ -622,4 +622,3 @@ describe("demo", () => {
 		expect(updatedConfig).toStrictEqual(expectedOutput)
 	})
 })
-
