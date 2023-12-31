@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { treeBFS } from "../.."
 
+
+
 export type PathResult = Readonly<(string | number)[]> | undefined
 export function basicBfsTreeFixture() {
 	const tree = {
@@ -20,6 +22,7 @@ export function basicBfsTreeFixture() {
 			UNIQUE_KEY: "UNIQUE_VALUE",
 		},
 	} as const
+
 	const ancestorMap = new Map<number, object[]>()
 		.set(1, [tree])
 		.set(2, [tree, tree.left])
@@ -39,40 +42,42 @@ export function basicBfsTreeFixture() {
 		.set(7, ["right", "right", "value"])
 
 	function testAncestors() {
-        return describe("ancestors", () => {
-            ancestorMap.forEach((ancestorPath, nodeValue) => {
-                it(`should retrieve ancestors for node ${nodeValue}`, () => {
-                    let traversed = false
-                    treeBFS(tree, (ctx) => {
-                        if (ctx.key === "value" && ctx.value === nodeValue) {
-                            expect(ctx.ancestors).toStrictEqual(ancestorPath)
-                            traversed = true
-                        }
-                    })
-                    expect(traversed).toBe(true)
-                })
-            })
-        })
-    }
+		return describe("ancestors", () => {
+			ancestorMap.forEach((ancestorPath, nodeValue) => {
+				it(`should retrieve ancestors for node ${nodeValue}`, () => {
+					let traversed = false
+					treeBFS(tree, (ctx) => {
+						if (ctx.key === "value" && ctx.value === nodeValue) {
+							expect(ctx.ancestors).toStrictEqual(ancestorPath)
+							traversed = true
+						}
+					})
+					expect(traversed).toBe(true)
+				})
+			})
+		})
+	}
 
 	function testPaths() {
-        return describe("paths", () => {
-            pathMap.forEach((path, nodeValue) => {
-                it(`should retrieve the correct path for node ${nodeValue}`, () => {
-                    let traversed = false
-                    treeBFS(tree, (ctx) => {
-                        if (ctx.isRecord() &&
-                            ctx.key === "value" &&
-                            ctx.value === nodeValue) {
-                            expect(ctx.path).toStrictEqual(path)
-                            traversed = true
-                        }
-                    })
-                    expect(traversed).toBe(true)
-                })
-            })
-        })
-    }
+		return describe("paths", () => {
+			pathMap.forEach((path, nodeValue) => {
+				it(`should retrieve the correct path for node ${nodeValue}`, () => {
+					let traversed = false
+					treeBFS(tree, (ctx) => {
+						if (
+							ctx.isRecord() &&
+							ctx.key === "value" &&
+							ctx.value === nodeValue
+						) {
+							expect(ctx.path).toStrictEqual(path)
+							traversed = true
+						}
+					})
+					expect(traversed).toBe(true)
+				})
+			})
+		})
+	}
 
 	return {
 		tree,
