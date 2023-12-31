@@ -1,11 +1,11 @@
 import { type z } from "zod"
-import { postDFSObjectTraversal } from "."
+import { notMatchable, postDFSObjectTraversal } from "."
 
 import {
 	type SpreadDeepObject,
 	type ReplaceDeepObject,
 	type ReplaceDeepWithinObject,
-	type MatchObjectDeep,
+	type ExtractObjectsDeep,
 } from "@tbui17/type-utils"
 import { cloneDeep } from "lodash"
 
@@ -52,7 +52,8 @@ export function mergeByPattern<
 	value: TValue
 	pattern: TPattern
 	fn: (
-		ctx: MatchObjectDeep<TValue, z.infer<TPattern>> & Record<string, any>
+		ctx: Extract<ExtractObjectsDeep<TValue>, z.infer<TPattern>> &
+			Record<string, any>
 	) => TReturn
 	shouldClone?: boolean
 }): SpreadDeepObject<TValue, z.infer<TPattern>, TReturn> {
@@ -67,11 +68,10 @@ export function mergeByPattern<
 			return
 		}
 
-		//@ts-expect-error experimental
-		Object.assign(ctx.context, fn(ctx.context))
+		Object.assign(ctx.context, fn(ctx.context as any))
 	})
-	//@ts-expect-error experimental
-	return obj
+
+	return obj as any
 }
 
 /**
@@ -123,7 +123,8 @@ export function replaceByPattern<
 	value: TValue
 	pattern: TPattern
 	fn: (
-		ctx: MatchObjectDeep<TValue, z.infer<TPattern>> & Record<string, any>
+		ctx: Extract<ExtractObjectsDeep<TValue>, z.infer<TPattern>> &
+			Record<string, any>
 	) => TReturn
 	shouldClone?: boolean
 }): NoRootModification<TValue, TPattern, TReturn> {
@@ -138,14 +139,13 @@ export function replaceByPattern<
 		if (!pattern.safeParse(ctx.context).success) {
 			return
 		}
-		//@ts-expect-error experimental
-		const newContext = fn(ctx.context)
+
+		const newContext = fn(ctx.context as any)
 
 		ctx.replace(newContext)
 	})
 
-	//@ts-expect-error experimental
-	return obj
+	return obj as any
 }
 type NoRootModification<
 	TValue extends Record<string, any>,
@@ -156,20 +156,3 @@ type NoRootModification<
 		? ReplaceDeepObject<U, z.infer<TPattern>, TReturn>
 		: never
 	: ReplaceDeepWithinObject<TValue, z.infer<TPattern>, TReturn>
-
-
-const notMatchableItems = new Set([
-	Date,
-	RegExp,
-	Error,
-	Buffer,
-	Set,
-	Map,
-	Function,
-])
-
-function notMatchable(value: any) {
-	return (
-		notMatchableItems.has(value.constructor) || typeof value === "function"
-	)
-}
