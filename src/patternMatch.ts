@@ -7,7 +7,7 @@ import {
 	type ReplaceDeepWithinObject,
 	type ExtractObjectsDeep,
 } from "@tbui17/type-utils/src"
-import { cloneDeep } from "lodash"
+import cloneDeep from "lodash/cloneDeep"
 
 /**
  * Modifies an object by merging additional properties returned by a callback function
