@@ -19,12 +19,15 @@ import { ObjectTraversalContext, postDFSObjectTraversal } from "."
  *           non-array objects deep within the structure;
  *           if false, it returns an array of all nodes.
  */
-export function getTreeNodes<T extends object, TExcludeArray extends boolean>(
+export function getTreeNodes<
+	T extends object,
+	TExcludeArray extends boolean = false,
+>(
 	obj: T,
 	{
 		excludeArrays = false as TExcludeArray,
 	}: { excludeArrays?: TExcludeArray } = {}
-): TExcludeArray extends true ? ExtractObjectsDeep<T> : Flatten<T> {
+): TExcludeArray extends true ? ExtractObjectsDeep<T>[] : Flatten<T>[] {
 	const nodes = new Set()
 	const shouldSkip = excludeArrays ? skipArrays : skipNothing
 	postDFSObjectTraversal(obj, (ctx) => {

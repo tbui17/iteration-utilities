@@ -92,7 +92,7 @@ describe("type test", () => {
 	}
 
 	it("with arrays", () => {
-		type Expected =
+		type Expected = (
 			| {
 					tree: "tree"
 					children: NodeWithChildren[]
@@ -112,13 +112,15 @@ describe("type test", () => {
 			| {
 					child1: "child1"
 			  }
+		)[]
+
 		const res = getTreeNodes(tree)
 
 		expectTypeOf(res).toEqualTypeOf<Expected>()
 	})
 
 	it("without arrays", () => {
-		type Expected =
+		type Expected = (
 			| {
 					tree: "tree"
 					children: NodeWithChildren[]
@@ -136,6 +138,7 @@ describe("type test", () => {
 			| {
 					child1: "child1"
 			  }
+		)[]
 
 		const res = getTreeNodes(tree, { excludeArrays: true })
 		expectTypeOf(res).toEqualTypeOf<Expected>()
