@@ -22,16 +22,10 @@ export abstract class ContextProcessor<T> {
 
 export class MutatingContextProcessor extends ContextProcessor<ObjectTraversalContext> {
 	Context = ObjectTraversalContext
-	traversalPath: (string | number)[] = []
 
 	public run() {
 		while (this.processingStack.length) {
 			const { current, depth, path } = this.processingStack.pop()!
-
-			const last = path.at(-1)
-			if (last !== undefined) {
-				this.traversalPath.push(last)
-			}
 
 			this.visitor(
 				new this.Context({
@@ -49,4 +43,3 @@ export class MutatingContextProcessor extends ContextProcessor<ObjectTraversalCo
 		return this
 	}
 }
-
