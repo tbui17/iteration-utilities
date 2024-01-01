@@ -6,7 +6,7 @@ type ArrayNode = [
 	depth: number,
 	value: number,
 	left: null | object,
-	right: null | object
+	right: null | object,
 ]
 
 enum ArrayNodeProps {
@@ -832,4 +832,32 @@ describe("integration tests", () => {
 			expect(recordClone).toStrictEqual(expectedRecord)
 		})
 	})
+})
+
+it("should not recurse into native objects", () => {
+	class Map2 extends Map {
+		prop1 = { shouldNotBeTraversed: true }
+	}
+
+	class Set2 extends Set {
+		prop1 = { shouldNotBeTraversed: true }
+	}
+
+	class Error2 extends Error {
+		prop1 = { shouldNotBeTraversed: true }
+	}
+
+	const tree = {
+		map: new Map2(),
+		set: new Set2(),
+		error: new Error2(),
+	} as const
+
+	let traversed = false
+
+	postDFSObjectTraversal(tree, (ctx) => {
+		expect(ctx.context).not.toHaveProperty("shouldNotBeTraversed")
+		traversed = true
+	})
+	expect(traversed).toBe(true)
 })
