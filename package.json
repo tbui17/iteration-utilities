@@ -1,7 +1,7 @@
 {
   "name": "@tbui17/iteration-utilities",
   "license": "MIT",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

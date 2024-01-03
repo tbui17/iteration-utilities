@@ -1,12 +1,12 @@
 /**
- * Executes a callback function for each pair of elements in an array using the two-pointer technique.
+ * Executes a callback function for each pair of elements in an array.
  * The callback function receives the left and right elements, their indices, and the original array.
  *
  * @template T - The type of elements in the array.
  * @param items - The array of elements.
  * @param cb - The callback function to execute for each pair of elements.
  */
-export function twoPointerEach<T>(
+export function allPairsEach<T>(
 	items: T[],
 	cb: (a: T, b: T, i: number, j: number, entities: T[]) => void
 ): void {
@@ -20,7 +20,7 @@ export function twoPointerEach<T>(
 }
 
 /**
- * Applies a callback function to each pair of elements in an array using the two-pointer technique.
+ * Applies a callback function to each pair of elements in an array.
  *
  * @template T The type of the elements in the array.
  * @template R The type of the result returned by the callback function.
@@ -28,7 +28,7 @@ export function twoPointerEach<T>(
  * @param cb A callback function that takes two elements, their indices, and the original array as arguments and returns a result.
  * @returns An array of results obtained by applying the callback function to each pair of elements.
  */
-export function twoPointerMap<T, R>(
+export function allPairsMap<T, R>(
 	items: T[],
 	cb: (a: T, b: T, i: number, j: number, entities: T[]) => R
 ): R[] {
@@ -46,7 +46,7 @@ export function twoPointerMap<T, R>(
 }
 
 /**
- * Applies a callback function to each pair of elements in an array using the two-pointer technique,
+ * Applies a callback function to each pair of elements in an array,
  * and returns an array of the results.
  *
  * Return undefined in the callback function to exclude the entry.
@@ -59,7 +59,7 @@ export function twoPointerMap<T, R>(
  *   and returns the result of the computation, or undefined if no result is produced.
  * @returns An array of the results of applying the callback function to each pair of elements.
  */
-export function twoPointerMapFilter<T, R>(
+export function allPairsMapFilter<T, R>(
 	items: T[],
 	cb: (a: T, b: T, i: number, j: number, entities: T[]) => R | undefined
 ): R[] {
