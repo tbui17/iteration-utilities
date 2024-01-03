@@ -8,13 +8,13 @@
  */
 export function allPairsEach<T>(
 	items: T[],
-	cb: (a: T, b: T, i: number, j: number, entities: T[]) => void
+	cb: (a: T, b: T, i: number, j: number, items: T[]) => void
 ): void {
 	for (let i = 0; i < items.length; i++) {
-		const left = items[i]
+		const left = items[i]!
 		for (let j = i + 1; j < items.length; j++) {
-			const right = items[j]
-			cb(left as T, right as T, i, j, items)
+			const right = items[j]!
+			cb(left, right, i, j, items)
 		}
 	}
 }
@@ -30,15 +30,15 @@ export function allPairsEach<T>(
  */
 export function allPairsMap<T, R>(
 	items: T[],
-	cb: (a: T, b: T, i: number, j: number, entities: T[]) => R
+	cb: (a: T, b: T, i: number, j: number, items: T[]) => R
 ): R[] {
 	const result: R[] = []
 
 	for (let i = 0; i < items.length; i++) {
-		const left = items[i]
+		const left = items[i]!
 		for (let j = i + 1; j < items.length; j++) {
-			const right = items[j]
-			const res = cb(left as T, right as T, i, j, items)
+			const right = items[j]!
+			const res = cb(left, right, i, j, items)
 			result.push(res)
 		}
 	}
@@ -61,15 +61,15 @@ export function allPairsMap<T, R>(
  */
 export function allPairsMapFilter<T, R>(
 	items: T[],
-	cb: (a: T, b: T, i: number, j: number, entities: T[]) => R | undefined
+	cb: (a: T, b: T, i: number, j: number, items: T[]) => R | undefined
 ): R[] {
 	const result: R[] = []
 
 	for (let i = 0; i < items.length; i++) {
-		const left = items[i]
+		const left = items[i]!
 		for (let j = i + 1; j < items.length; j++) {
-			const right = items[j]
-			const res = cb(left as T, right as T, i, j, items)
+			const right = items[j]!
+			const res = cb(left, right, i, j, items)
 			if (res !== undefined) {
 				result.push(res)
 			}
