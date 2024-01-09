@@ -1,5 +1,5 @@
 import { type z } from "zod"
-import { notMatchable, postDFSObjectTraversal } from "."
+import { postDFSObjectTraversal } from "."
 
 import {
 	type SpreadDeepObject,
@@ -8,6 +8,7 @@ import {
 	type ExtractObjectsDeep,
 } from "@tbui17/type-utils/src"
 import cloneDeep from "lodash/cloneDeep"
+import { notMatchable } from "./internal/notMatchable"
 
 /**
  * Modifies an object by merging additional properties returned by a callback function

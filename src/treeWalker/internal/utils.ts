@@ -1,6 +1,5 @@
-import { z } from "zod"
-import { type ObjectOrArray } from "./types"
-import { notMatchable } from "."
+import { type ObjectOrArray } from "../types"
+import { notMatchable } from "../../internal/notMatchable"
 
 export function isObjectOrArray(value: any): value is ObjectOrArray {
 	return typeof value === "object" && value !== null && !notMatchable(value)
@@ -13,5 +12,3 @@ export function getEntriesOfObjectOrArray(value: ObjectOrArray) {
 export function getValuesOfObjectOrArray(value: ObjectOrArray) {
 	return Array.isArray(value) ? value : Object.values(value)
 }
-
-export const numberSchema = z.coerce.number()

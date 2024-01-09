@@ -1,15 +1,11 @@
 import get from "lodash/get"
-import {
-	type ObjectOrArray,
-	isObjectOrArray,
-	type Visitor,
-	BaseTreeContext,
-	numberSchema,
-} from ".."
+import { type ObjectOrArray, type Visitor, BaseTreeContext } from ".."
 import { Merger } from "./Merger"
 import { treeUpdateStatus } from "./treeUpdateStatus"
 import { type TreeContextConstructor } from "./treeContextConstructor"
 import { getAncestor } from "./getAncestor"
+import { numberSchema } from "../../internal/globals"
+import { isObjectOrArray } from "../internal/utils"
 
 /**
  * Shares many similar methods with TreeContext, refer to that class for documentation.

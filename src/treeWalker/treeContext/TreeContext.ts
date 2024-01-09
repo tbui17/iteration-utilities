@@ -1,13 +1,7 @@
 import get from "lodash/get"
-import {
-	isObjectOrArray,
-	numberSchema,
-	type ObjectOrArray,
-	PathError,
-	type Visitor,
-	getAncestor,
-} from ".."
+import { type ObjectOrArray, type Visitor, getAncestor } from ".."
 import { BaseTreeContext } from "./baseTreeContext"
+import { isObjectOrArray } from "../internal/utils"
 
 /**
  * Represents the context of a node in a tree structure.

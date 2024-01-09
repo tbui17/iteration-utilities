@@ -1,4 +1,5 @@
-import { numberSchema, PathError } from ".."
+import { PathError } from ".."
+import { numberSchema } from "../../internal/globals"
 
 export function getAncestor(
 	rootContext: any[] | Record<string, any>,

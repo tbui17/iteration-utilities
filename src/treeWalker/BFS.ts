@@ -1,5 +1,5 @@
 import { Queue } from "js-sdsl"
-import { isObjectOrArray, getEntriesOfObjectOrArray } from "./utils.js"
+import { isObjectOrArray, getEntriesOfObjectOrArray } from "./internal/utils.js"
 import { type TreeVisitor } from "./treeContext/TreeContext.js"
 import { type TraversalContextWithDepth, type ObjectOrArray } from "./types.js"
 import { TreeContext } from "./treeContext/TreeContext.js"

@@ -1,12 +1,9 @@
-import {
-	type ObjectOrArray,
-	isObjectOrArray,
-	getEntriesOfObjectOrArray,
-} from ".."
+import { type ObjectOrArray } from ".."
 import { type ObjectTraversalContext } from "../treeContext/objectTraversalContext"
 
 import { type TraversalContextWithDepth, type Visitor } from "../types"
 import { MutatingContextProcessor } from "."
+import { isObjectOrArray, getEntriesOfObjectOrArray } from "../internal/utils"
 
 function loadDFSStack(data: ObjectOrArray) {
 	const retrievalStack: TraversalContextWithDepth[] = [
