@@ -1,4 +1,5 @@
 export * from "./allPairs"
+export * from "./denseRank"
 export * from "./flatObj"
 export * from "./getTreeNodes"
 export * from "./mappers"
