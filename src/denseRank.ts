@@ -20,7 +20,7 @@ import orderBy from "lodash/orderBy"
  */
 export function denseRank<T, TRankField extends string = "rank">(
 	items: T[] | ReadonlyArray<T>,
-	iteratees: ((item: T) => unknown)[],
+	iteratees: ((item: T) => unknown)[] | ((item: T) => unknown),
 	{
 		orders = [],
 		fieldName = "rank" as TRankField,
@@ -35,6 +35,7 @@ export function denseRank<T, TRankField extends string = "rank">(
 
 	let lastRank = startingRank
 	let lastValues: unknown[] = []
+	iteratees = Array.isArray(iteratees) ? iteratees : [iteratees]
 
 	const valueFactory = (item: T) => {
 		return iteratees.map((selector) => selector(item))
