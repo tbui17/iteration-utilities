@@ -1,7 +1,7 @@
 {
   "name": "@tbui17/iteration-utilities",
   "license": "MIT",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -28,7 +28,7 @@
     "vitest": "^1.1.0"
   },
   "dependencies": {
-    "@tbui17/type-utils": "^2.1.2",
+    "@tbui17/type-utils": "^2.2.0",
     "js-sdsl": "^4.4.2",
     "lodash": "^4.17.21",
     "zod": "^3.22.4"
