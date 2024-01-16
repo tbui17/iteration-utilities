@@ -1,4 +1,4 @@
-import { ExcludeMethods, GetMethodKeys } from "@tbui17/type-utils"
+import type { ExcludeMethods, GetMethodKeys } from "@tbui17/type-utils"
 
 /**
  * Partitions an object by keys into two separate objects: one containing the picked keys and their corresponding values,

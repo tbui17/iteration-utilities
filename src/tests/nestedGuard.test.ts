@@ -83,6 +83,28 @@ describe("nestedGuard", () => {
 		expect(isC).toBe(true)
 	})
 
+	it("impl should not throw or fail with null specified as value", () => {
+		type Examp = {
+			a: {
+				b: "a" | null
+			}
+		}
+		const examp: Examp = {
+			a: {
+				b: null,
+			},
+		}
+		// @ts-expect-error - testing impl
+		const res = nestedGuard(examp, "a.b", null)
+		expect(res).toBe(true)
+	})
+
+	it("impl should fail gracefully by returning false when invalid paths are passed in", () => {
+		// @ts-expect-error - testing impl
+		const res = nestedGuard(examp, "prop1.prop1.type.q.zxc.d", "a")
+		expect(res).toBe(false)
+	})
+
 	it("should narrow down nested discriminated unions", () => {
 		type Expected = {
 			type: "a"

@@ -148,7 +148,7 @@ export function nestedGuard<
 	let current = obj
 
 	for (const path of pathArr) {
-		if (current === undefined) {
+		if (typeof current !== "object" || current === null) {
 			return false
 		}
 		current = current[path]
