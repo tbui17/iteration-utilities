@@ -35,10 +35,10 @@ export function denseRank<T, TRankField extends string = "rank">(
 
 	let lastRank = startingRank
 	let lastValues: unknown[] = []
-	iteratees = Array.isArray(iteratees) ? iteratees : [iteratees]
+	const iterateesArr = Array.isArray(iteratees) ? iteratees : [iteratees]
 
 	const valueFactory = (item: T) => {
-		return iteratees.map((selector) => selector(item))
+		return iterateesArr.map((selector) => selector(item))
 	}
 
 	return sortedItems.map((item, index) => {

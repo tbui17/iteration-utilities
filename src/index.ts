@@ -4,6 +4,7 @@ export * from './flatObj';
 export * from './getTreeNodes';
 export * from './mappers';
 export * from './mergeSets';
+export * from "./nestedGuard"
 export * from './partitionObjByKey';
 export * from './patternMatch';
 export * from './pickToArray';
