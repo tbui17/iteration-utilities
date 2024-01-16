@@ -1,5 +1,5 @@
 ---
-"my-package": patch
+"@tbui17/iteration-utilities": patch
 ---
 
-Added the add function
+
