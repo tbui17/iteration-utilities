@@ -56,6 +56,7 @@ it("should flatten an object with a nested object", () => {
 it("should not override existing properties of the objects within the nested array.", () => {
 	const obj = {
 		prop1: 1,
+		prop2: 3,
 		data: [{ prop2: "value1", data: [{ prop3: "value2" }] }],
 	}
 

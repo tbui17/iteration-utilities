@@ -3,16 +3,16 @@ import { type O } from "ts-toolbelt"
 
 type FlatObjResult<
 	T extends Record<string, any>,
-	K extends keyof T
+	K extends keyof T,
 > = T[K] extends Primitive
 	? T
 	: T[K] extends any[]
-	? T[K][number] extends Record<string, any>
-		? Spread<T[K][number], Omit<T, K>>[]
-		: O.Update<T, K, T[K][number]>[]
-	: T[K] extends Record<string, any>
-	? Spread<Omit<T, K>, T[K]>
-	: never
+		? T[K][number] extends Record<string, any>
+			? Spread<Omit<T, K>, T[K][number]>[]
+			: O.Update<T, K, T[K][number]>[]
+		: T[K] extends Record<string, any>
+			? Spread<Omit<T, K>, T[K]>
+			: never
 
 /**
  * Flattens a nested object or an array of objects based on a specified key.
