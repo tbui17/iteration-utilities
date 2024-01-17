@@ -149,11 +149,55 @@ describe("mapFilterGroups", () => {
 		}
 
 		expect(res).toEqual(expected)
+		type Expected = {
+			fruit1: {
+				type: "fruit"
+				name: string
+				abc: string
+				ddd: string
+			}[]
+			abc: {
+				type: "abc"
+				name: 12345
+				def: string
+			}[]
+			fruit2: (
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+						ddd: string
+				  }
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+				  }
+			)[]
+			fruit3: {
+				type: "fruit"
+				name: string
+				abc: string
+				ddd: string
+			}[]
+		}
 
 		expectTypeOf(res).toEqualTypeOf<{
 			fruit1: { type: "fruit"; name: string; abc: string; ddd: string }[]
 			abc: { type: "abc"; name: 12345; def: string }[]
-			fruit2: { type: "fruit"; name: string; abc: string }[]
+			fruit2: (
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+						ddd: string
+				  }
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+				  }
+			)[]
 			fruit3: { type: "fruit"; name: string; abc: string; ddd: string }[]
 		}>()
 	})
@@ -277,17 +321,35 @@ describe("mapFilterPartition", () => {
 			result.fruit.length + result.fruit2.length + orphans.length
 		expect(total).toBe(items.length)
 
-		expectTypeOf(result).toEqualTypeOf<{
-			fruit: {
-				type: "fruit"
-				name: string
-				abc: string
-			}[]
-			fruit2: {
-				type: "fruit"
-				name: string
-				abc: string
-			}[]
-		}>
+		type Expected = {
+			fruit: (
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+						ddd: string
+				  }
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+				  }
+			)[]
+			fruit2: (
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+						ddd: string
+				  }
+				| {
+						type: "fruit"
+						name: string
+						abc: string
+				  }
+			)[]
+		}
+
+		expectTypeOf(result).toEqualTypeOf<Expected>()
 	})
 })
