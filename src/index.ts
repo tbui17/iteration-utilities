@@ -2,8 +2,9 @@ export * from './allPairs';
 export * from './denseRank';
 export * from './flatObj';
 export * from './getTreeNodes';
-export * from './mappers';
-export * from './mergeSets';
+export * from "./groupByOmit"
+export * from "./mappers"
+export * from "./mergeSets"
 export * from "./nestedGuard"
 export * from './partitionObjByKey';
 export * from './patternMatch';
